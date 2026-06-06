@@ -933,3 +933,21 @@ That level of evidence supports better engineering decisions, faster debugging, 
 ## Disclaimer
 
 This is an independent proof-of-concept project. It does not validate proprietary production software. The project is inspired by common test automation challenges found in networked visual operations platforms, including internet-style video streaming, source distribution, display rendering, synchronization, network behavior, and evidence-based validation.
+
+command to start streaming after docker compose up
+```
+ffmpeg -re `
+  -f lavfi -i "testsrc=size=1280x720:rate=30" `
+  -vf "drawtext=fontfile='C\:/Windows/Fonts/arial.ttf':text='SOURCE\: CAMERA_SYNC_TEST FRAME\: %{n} TIME\: %{pts\:hms}':x=40:y=40:fontsize=36:fontcolor=white:box=1:boxcolor=black@0.6" `
+  -c:v libx264 `
+  -preset veryfast `
+  -tune zerolatency `
+  -pix_fmt yuv420p `
+  -rtsp_transport tcp `
+  -f rtsp `
+  rtsp://localhost:8554/camera_sync_test
+```
+one liner
+```
+ffmpeg -re -f lavfi -i "testsrc=size=1280x720:rate=30" -vf "drawtext=fontfile='C\:/Windows/Fonts/arial.ttf':text='SOURCE\: CAMERA_SYNC_TEST FRAME\: %{n} TIME\: %{pts\:hms}':x=40:y=40:fontsize=36:fontcolor=white:box=1:boxcolor=black@0.6" -c:v libx264 -preset veryfast -tune zerolatency -pix_fmt yuv420p -rtsp_transport tcp -f rtsp rtsp://localhost:8554/camera_sync_test
+```
