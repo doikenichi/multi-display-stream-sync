@@ -1,0 +1,44 @@
+name: Display Client CI
+
+on:
+  push:
+    paths:
+      - "display-client/**"
+      - ".github/workflows/display-client-ci.yml"
+  pull_request:
+    paths:
+      - "display-client/**"
+      - ".github/workflows/display-client-ci.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  validate-display-client:
+    name: Validate Display Client
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: display-client/package-lock.json
+
+      - name: Install dependencies
+        working-directory: display-client
+        run: npm ci
+
+      - name: Run lint
+        working-directory: display-client
+        run: npm run lint
+
+      - name: Build Display Client
+        working-directory: display-client
+        run: npm run build
+
+      - name: Build Docker image
+        run: docker build -t display-client:test ./display-client
