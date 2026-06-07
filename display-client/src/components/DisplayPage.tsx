@@ -1,27 +1,34 @@
-import { useState } from "react";
-import type { PlaybackStatus, PlaybackError } from "../types/display";
-import { useDisplayConfig } from "../hooks/useDisplayConfig";
-import { DebugPanel } from "./DebugPanel";
-import { PlaybackStatusView } from "./PlaybackStatusView";
-import { VideoPlayer } from "./VideoPlayer";
-import { PlaybackErrorView } from "./PlaybackErrorView";
+import {useDisplayConfig} from "../hooks/useDisplayConfig";
+import {useHlsPlayer} from "../hooks/useHlsPlayer";
+import type {PlaybackError, PlaybackStatus} from "../types/display";
+import {DebugPanel} from "./DebugPanel";
+import {PlaybackErrorView} from "./PlaybackErrorView";
+import {PlaybackStatusView} from "./PlaybackStatusView";
+import {VideoPlayer} from "./VideoPlayer";
 
 export function DisplayPage() {
-  const { config, error } = useDisplayConfig();
+  const {config, error} = useDisplayConfig();
 
-  const [playbackStatus, setPlaybackStatus] = useState<PlaybackStatus>(
-    error ? "ERROR" : "INITIALIZING",
-  );
+  const {
+    videoRef,
+    playbackStatus: hlsPlaybackStatus,
+    playbackError: hlsPlaybackError,
+    playbackMode,
+    videoDiagnostics
+  } = useHlsPlayer({
+    streamUrl: config?.streamUrl,
+    autoplay: config?.autoplay ?? true,
+  });
 
-  const [playbackError, setPlaybackError] = useState<PlaybackError | null>(
-    error
-      ? {
-          message: error,
-          type: "CONFIG_ERROR",
-          fatal: true,
-        }
-      : null,
-  );
+  const playbackStatus: PlaybackStatus = error ? "ERROR" : hlsPlaybackStatus;
+
+  const playbackError: PlaybackError | null = error
+    ? {
+      message: error,
+      type: "CONFIG_ERROR",
+      fatal: true,
+    }
+    : hlsPlaybackError;
 
   if (!config) {
     return (
@@ -32,8 +39,8 @@ export function DisplayPage() {
             <p>Browser-based virtual display</p>
           </header>
 
-          <PlaybackStatusView status={playbackStatus} />
-          <PlaybackErrorView error={playbackError} />
+          <PlaybackStatusView status={playbackStatus}/>
+          <PlaybackErrorView error={playbackError}/>
         </section>
       </main>
     );
@@ -47,21 +54,19 @@ export function DisplayPage() {
           <p>Browser-based virtual display</p>
         </header>
 
-        <VideoPlayer
-          config={config}
-          onPlaybackStatusChange={setPlaybackStatus}
-          onPlaybackErrorChange={setPlaybackError}
-        />
+        <VideoPlayer config={config} videoRef={videoRef}/>
 
-        <PlaybackStatusView status={playbackStatus} />
+        <PlaybackStatusView status={playbackStatus}/>
 
-        <PlaybackErrorView error={playbackError} />
+        <PlaybackErrorView error={playbackError}/>
 
         {config.debug && (
           <DebugPanel
             config={config}
             playbackStatus={playbackStatus}
             playbackError={playbackError}
+            playbackMode={playbackMode}
+            videoDiagnostics={videoDiagnostics}
           />
         )}
       </section>

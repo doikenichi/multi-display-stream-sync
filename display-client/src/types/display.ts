@@ -24,3 +24,12 @@ export interface PlaybackError {
   fatal?: boolean;
   message: string;
 }
+
+export type PlaybackMode = "none" | "hls.js" | "native" | "unsupported";
+
+export interface VideoDiagnostics {
+  readyState: number;
+  currentTime: number;
+  videoWidth: number;
+  videoHeight: number;
+}
