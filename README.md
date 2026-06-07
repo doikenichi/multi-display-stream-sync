@@ -12,6 +12,62 @@ This project focuses on **streaming video over IP/HTTP-based networks**, startin
 
 ---
 
+## Development Workflow
+
+This repository is protected by keeping changes small, reviewable, and backed by automated checks. The current enforced CI surface is the Display Client workflow, which runs whenever a pull request changes `display-client/**` or `.github/workflows/display-client-ci.yml`, and when those paths are pushed to `main`.
+
+### How the Whole Repository Is Protected
+
+* Use pull requests for changes to shared code, documentation, Docker configuration, and CI workflows.
+* Keep generated test evidence, local stream output, and large media artifacts out of normal review unless they are intentional fixtures.
+* Treat `main` as the stable integration branch. Work should be developed on topic branches and merged only after review and passing checks.
+* CI has read-only repository permissions by default through `permissions: contents: read`.
+* The Display Client must continue to lint, build, and produce a Docker image before changes are considered ready to merge.
+
+### How to Contribute
+
+1. Create a topic branch from `main`.
+2. Make a focused change with documentation updated alongside behavior changes.
+3. For Display Client changes, run the local checks before opening a pull request:
+
+```powershell
+cd display-client
+npm ci
+npm run lint
+npm run build
+```
+
+4. If the Docker runtime changed, build the image locally:
+
+```powershell
+docker build -t display-client:test ./display-client
+```
+
+5. Open a pull request and include the purpose of the change, local validation performed, and any known gaps.
+
+### What CI Checks Run
+
+The `Display Client CI` workflow runs on GitHub Actions for Display Client pull requests and Display Client changes pushed to `main`.
+
+| Check | Command | Purpose |
+| --- | --- | --- |
+| Install dependencies | `npm ci` | Recreate dependencies from `display-client/package-lock.json` |
+| Lint | `npm run lint` | Validate TypeScript and React lint rules |
+| Build | `npm run build` | Type-check with `tsc -b` and build with Vite |
+| Docker image build | `docker build -t display-client:test ./display-client` | Verify the production nginx image can be built |
+
+The workflow uses Node.js 24 and caches npm dependencies with `display-client/package-lock.json`.
+
+### What the Merge Rules Are
+
+* Pull requests that touch `display-client/**` or `.github/workflows/display-client-ci.yml` must pass `Display Client CI`.
+* Do not merge changes that leave lint, TypeScript build, Vite build, or Docker image build failures unresolved.
+* Require review for changes that affect CI, Docker Compose, stream URLs, readiness selectors, or automation contracts.
+* Keep merge commits or squash commits traceable to the pull request and include the validation that was performed.
+* If a check is intentionally bypassed, document the reason and follow-up work in the pull request before merging.
+
+---
+
 ## Target Audience
 
 This project is written for two audiences.
