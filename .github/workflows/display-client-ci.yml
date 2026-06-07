@@ -2,6 +2,8 @@ name: Display Client CI
 
 on:
   push:
+    branches:
+      - main
     paths:
       - "display-client/**"
       - ".github/workflows/display-client-ci.yml"
