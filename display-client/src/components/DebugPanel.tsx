@@ -1,20 +1,20 @@
-import type {
-  DisplayConfig,
-  PlaybackStatus,
-  PlaybackError,
-} from "../types/display";
+import type {DisplayConfig, PlaybackError, PlaybackMode, PlaybackStatus, VideoDiagnostics,} from "../types/display";
 
 interface DebugPanelProps {
   config: DisplayConfig;
   playbackStatus: PlaybackStatus;
   playbackError: PlaybackError | null;
+  playbackMode: PlaybackMode;
+  videoDiagnostics: VideoDiagnostics;
 }
 
 export function DebugPanel({
-  config,
-  playbackStatus,
-  playbackError,
-}: DebugPanelProps) {
+                             config,
+                             playbackStatus,
+                             playbackError,
+                             playbackMode,
+                             videoDiagnostics,
+                           }: DebugPanelProps) {
   return (
     <section data-testid="debug-panel" className="debug-panel">
       <h2>Debug</h2>
@@ -31,6 +31,18 @@ export function DebugPanel({
 
         <dt>Test Run ID</dt>
         <dd>{config.testRunId ?? "N/A"}</dd>
+
+        <dt>Playback Mode</dt>
+        <dd>{playbackMode}</dd>
+
+        <dt>Video Dimensions (w x h)</dt>
+        <dd>{videoDiagnostics.videoWidth}x{videoDiagnostics.videoHeight}</dd>
+
+        <dt>Current Time</dt>
+        <dd>{videoDiagnostics.currentTime.toFixed(2)}s</dd>
+
+        <dt>Ready State</dt>
+        <dd>{videoDiagnostics.readyState}</dd>
 
         <dt>Autoplay</dt>
         <dd>{String(config.autoplay)}</dd>

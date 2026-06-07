@@ -7,3 +7,11 @@ services:
     ports:
       - "8554:8554"
       - "8888:8888"
+  
+  display-client:
+    build: ./display-client
+    container_name: display-client
+    ports:
+      - "3000:3000"
+    depends_on:
+      - mediamtx
