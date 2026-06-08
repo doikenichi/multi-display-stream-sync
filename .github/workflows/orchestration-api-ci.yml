@@ -12,6 +12,9 @@ on:
       - "streaming-lab-orchestration-api/**"
       - ".github/workflows/orchestration-api-ci.yml"
 
+permissions:
+  contents: read
+
 jobs:
   build:
     name: Build and test Orchestration API
