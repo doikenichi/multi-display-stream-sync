@@ -1,0 +1,39 @@
+name: Orchestration API CI
+
+on:
+  pull_request:
+    paths:
+      - "streaming-lab-orchestration-api/**"
+      - ".github/workflows/orchestration-api-ci.yml"
+  push:
+    branches:
+      - main
+    paths:
+      - "streaming-lab-orchestration-api/**"
+      - ".github/workflows/orchestration-api-ci.yml"
+
+jobs:
+  build:
+    name: Build and test Orchestration API
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: streaming-lab-orchestration-api
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Java 25
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "25"
+          cache: gradle
+
+      - name: Make Gradle wrapper executable
+        run: chmod +x ./gradlew
+
+      - name: Run quality gate
+        run: ./gradlew clean spotlessCheck check test
