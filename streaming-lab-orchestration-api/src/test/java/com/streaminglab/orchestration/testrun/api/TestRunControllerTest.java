@@ -102,6 +102,11 @@ class TestRunControllerTest {
   }
 
   @Test
+  void shouldReturnBadRequestWhenInvalidIDFormat() throws Exception {
+    mockMvc.perform(get("/api/test-runs/invalid-uuid")).andExpect(status().isBadRequest());
+  }
+
+  @Test
   void shouldReturnBadRequestWhenStreamNameIsBlank() throws Exception {
     mockMvc
         .perform(
@@ -110,9 +115,26 @@ class TestRunControllerTest {
                 .content(
                     """
                                 {
-                                  "streamName": ""
+                                  "streamName": "",
+                                  displayCount: 1
                                 }
                                 """))
         .andExpect(status().isBadRequest());
+  }
+
+  @Test
+  void shouldReturnBadRequestWhenDisplayCountIsZero() throws Exception {
+    mockMvc
+            .perform(
+                    post("/api/test-runs")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(
+                                    """
+                                                {
+                                                  "streamName": "camera-sync-test",
+                                                  "displayCount": 0
+                                                }
+                                                """))
+            .andExpect(status().isBadRequest());
   }
 }

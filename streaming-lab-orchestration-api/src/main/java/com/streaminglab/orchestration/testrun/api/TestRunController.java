@@ -34,9 +34,9 @@ public class TestRunController {
   }
 
   @GetMapping("/{testRunId}")
-  public ResponseEntity<TestRunResponse> getTestRun(@PathVariable String testRunId) {
+  public ResponseEntity<TestRunResponse> getTestRun(@PathVariable @Valid UUID testRunId) {
     return testRunService
-        .findById(UUID.fromString(testRunId))
+        .findById(testRunId)
         .map(TestRunResponse::from)
         .map(ResponseEntity::ok)
         .orElseGet(() -> ResponseEntity.notFound().build());
