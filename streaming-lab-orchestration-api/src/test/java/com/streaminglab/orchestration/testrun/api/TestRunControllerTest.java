@@ -2,12 +2,14 @@ package com.streaminglab.orchestration.testrun.api;
 
 import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.streaminglab.orchestration.testrun.application.TestRunNotFoundException;
 import com.streaminglab.orchestration.testrun.application.TestRunService;
 import com.streaminglab.orchestration.testrun.domain.TestRun;
 import com.streaminglab.orchestration.testrun.domain.TestRunStatus;
@@ -136,5 +138,44 @@ class TestRunControllerTest {
                                                 }
                                                 """))
         .andExpect(status().isBadRequest());
+  }
+
+  @Test
+  void shouldMarkTestRunAsPreparing() throws Exception {
+    TestRun preparingTestRun =
+        new TestRun(
+            TEST_RUN_ID,
+            "camera_sync_test",
+            2,
+            TestRunStatus.PREPARING,
+            "http://mediamtx:8888/camera_sync_test/",
+            "http://localhost:8888/camera_sync_test/",
+            "rtsp://mediamtx:8554/camera_sync_test",
+            "artifacts/test-runs/" + TEST_RUN_ID,
+            Instant.parse("2026-06-07T00:00:00Z"),
+            null,
+            null,
+            null);
+
+    when(testRunService.markAsPreparing(TEST_RUN_ID)).thenReturn(preparingTestRun);
+    mockMvc
+        .perform(post("/api/test-runs/{testRunId}/prepare", TEST_RUN_ID))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.testRunId").value(TEST_RUN_ID.toString()))
+        .andExpect(jsonPath("$.status").value("PREPARING"));
+
+    verify(testRunService).markAsPreparing(TEST_RUN_ID);
+  }
+
+  @Test
+  void shouldReturnNotFoundWhenPreparingMissingTestRun() throws Exception {
+    when(testRunService.markAsPreparing(TEST_RUN_ID))
+        .thenThrow(new TestRunNotFoundException(TEST_RUN_ID));
+
+    mockMvc
+        .perform(post("/api/test-runs/{testRunId}/prepare", TEST_RUN_ID))
+        .andExpect(status().isNotFound());
+
+    verify(testRunService).markAsPreparing(TEST_RUN_ID);
   }
 }

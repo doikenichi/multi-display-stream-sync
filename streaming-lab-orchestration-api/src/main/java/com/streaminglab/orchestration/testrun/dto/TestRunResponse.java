@@ -3,9 +3,10 @@ package com.streaminglab.orchestration.testrun.dto;
 import com.streaminglab.orchestration.testrun.domain.TestRun;
 import com.streaminglab.orchestration.testrun.domain.TestRunStatus;
 import java.time.Instant;
+import java.util.UUID;
 
 public record TestRunResponse(
-    String testRunId,
+    UUID testRunId,
     String streamName,
     TestRunStatus status,
     String hlsExternalUrl,
@@ -17,7 +18,7 @@ public record TestRunResponse(
 
   public static TestRunResponse from(TestRun testRun) {
     return new TestRunResponse(
-        testRun.testRunId().toString(),
+        testRun.testRunId(),
         testRun.streamName(),
         testRun.status(),
         testRun.hlsExternalUrl(),

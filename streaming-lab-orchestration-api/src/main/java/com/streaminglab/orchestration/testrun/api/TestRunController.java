@@ -40,4 +40,11 @@ public class TestRunController {
         .map(ResponseEntity::ok)
         .orElseGet(() -> ResponseEntity.notFound().build());
   }
+
+  @PostMapping("/{testRunId}/prepare")
+  public ResponseEntity<TestRunResponse> prepareTestRun(@PathVariable UUID testRunId) {
+    TestRun testRun = testRunService.markAsPreparing(testRunId);
+
+    return ResponseEntity.ok(TestRunResponse.from(testRun));
+  }
 }

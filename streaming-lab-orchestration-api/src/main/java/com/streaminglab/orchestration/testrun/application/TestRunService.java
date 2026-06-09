@@ -58,4 +58,26 @@ public class TestRunService {
   private String buildArtifactPath(UUID testRunId) {
     return "artifacts/test-runs/" + testRunId;
   }
+
+  public TestRun markAsPreparing(UUID testRunId) {
+    TestRun testRun =
+        repository.findById(testRunId).orElseThrow(() -> new TestRunNotFoundException(testRunId));
+
+    TestRun updatedTestRun =
+        new TestRun(
+            testRun.testRunId(),
+            testRun.streamName(),
+            testRun.displayCount(),
+            TestRunStatus.PREPARING,
+            testRun.hlsInternalUrl(),
+            testRun.hlsExternalUrl(),
+            testRun.rtspPublishUrl(),
+            testRun.artifactPath(),
+            testRun.createdAt(),
+            testRun.startedAt(),
+            testRun.stoppedAt(),
+            testRun.errorMessage());
+
+    return repository.save(updatedTestRun);
+  }
 }

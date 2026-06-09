@@ -1,6 +1,7 @@
 package com.streaminglab.orchestration.testrun.application;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 
 import com.streaminglab.orchestration.testrun.domain.TestRun;
 import com.streaminglab.orchestration.testrun.domain.TestRunStatus;
@@ -10,6 +11,7 @@ import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.util.Optional;
+import java.util.UUID;
 import org.junit.jupiter.api.Test;
 
 class TestRunServiceTest {
@@ -50,5 +52,23 @@ class TestRunServiceTest {
     TestRun testRun = service.createTestRun("camera_sync_test", 2);
 
     assertThat(testRun.artifactPath()).isEqualTo("artifacts/test-runs/" + testRun.testRunId());
+  }
+
+  @Test
+  void shouldMarkCreatedTestRunAsPreparing() {
+    TestRun testRun = service.createTestRun("camera_sync_test", 2);
+
+    TestRun updatedTestRun = service.markAsPreparing(testRun.testRunId());
+
+    assertThat(updatedTestRun.status()).isEqualTo(TestRunStatus.PREPARING);
+  }
+
+  @Test
+  void shouldThrowExceptionWhenMarkingMissingTestRunAsPreparing() {
+    UUID missingTestRunId = UUID.randomUUID();
+
+    assertThatThrownBy(() -> service.markAsPreparing(missingTestRunId))
+        .isInstanceOf(TestRunNotFoundException.class)
+        .hasMessage("Test run not found: " + missingTestRunId);
   }
 }
