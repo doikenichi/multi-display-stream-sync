@@ -13,6 +13,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.UUID;
+
 @RestController
 @RequestMapping("/api/test-runs")
 public class TestRunController {
@@ -26,7 +28,7 @@ public class TestRunController {
   @PostMapping
   public ResponseEntity<TestRunResponse> createTestRun(
       @Valid @RequestBody CreateTestRunRequest request) {
-    TestRun testRun = testRunService.createTestRun(request.streamName());
+    TestRun testRun = testRunService.createTestRun(request.streamName(), request.displayCount());
 
     return ResponseEntity.status(201).body(TestRunResponse.from(testRun));
   }
@@ -34,7 +36,7 @@ public class TestRunController {
   @GetMapping("/{testRunId}")
   public ResponseEntity<TestRunResponse> getTestRun(@PathVariable String testRunId) {
     return testRunService
-        .findById(testRunId)
+        .findById(UUID.fromString(testRunId))
         .map(TestRunResponse::from)
         .map(ResponseEntity::ok)
         .orElseGet(() -> ResponseEntity.notFound().build());

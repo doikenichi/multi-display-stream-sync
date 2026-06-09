@@ -13,6 +13,7 @@ import com.streaminglab.orchestration.testrun.domain.TestRun;
 import com.streaminglab.orchestration.testrun.domain.TestRunStatus;
 import java.time.Instant;
 import java.util.Optional;
+import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
@@ -27,12 +28,15 @@ class TestRunControllerTest {
 
   @MockitoBean private TestRunService testRunService;
 
+  private final UUID TEST_RUN_ID = UUID.fromString("848791c4-5cc1-41cf-b98a-9cbcae4d7eab");
+
   @Test
   void shouldCreateTestRun() throws Exception {
     TestRun testRun =
         new TestRun(
-            "run-001",
+            TEST_RUN_ID,
             "camera-sync-test",
+            1,
             TestRunStatus.CREATED,
             "",
             "",
@@ -43,7 +47,7 @@ class TestRunControllerTest {
             null,
             null);
 
-    when(testRunService.createTestRun(eq("camera-sync-test"))).thenReturn(testRun);
+    when(testRunService.createTestRun(eq("camera-sync-test"), eq(1))).thenReturn(testRun);
 
     mockMvc
         .perform(
@@ -52,11 +56,12 @@ class TestRunControllerTest {
                 .content(
                     """
                                 {
-                                  "streamName": "camera-sync-test"
+                                  "streamName": "camera-sync-test",
+                                  "displayCount": 1
                                 }
                                 """))
         .andExpect(status().isCreated())
-        .andExpect(jsonPath("$.testRunId", is("run-001")))
+        .andExpect(jsonPath("$.testRunId", is(TEST_RUN_ID.toString())))
         .andExpect(jsonPath("$.streamName", is("camera-sync-test")))
         .andExpect(jsonPath("$.status", is("CREATED")));
   }
@@ -65,8 +70,9 @@ class TestRunControllerTest {
   void shouldReturnTestRunById() throws Exception {
     TestRun testRun =
         new TestRun(
-            "run-001",
+            TEST_RUN_ID,
             "camera-sync-test",
+            1,
             TestRunStatus.CREATED,
             "",
             "",
@@ -77,21 +83,22 @@ class TestRunControllerTest {
             null,
             null);
 
-    when(testRunService.findById("run-001")).thenReturn(Optional.of(testRun));
+    when(testRunService.findById(TEST_RUN_ID)).thenReturn(Optional.of(testRun));
 
     mockMvc
-        .perform(get("/api/test-runs/run-001"))
+        .perform(get("/api/test-runs/"+TEST_RUN_ID))
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$.testRunId", is("run-001")))
+        .andExpect(jsonPath("$.testRunId", is(TEST_RUN_ID.toString())))
         .andExpect(jsonPath("$.streamName", is("camera-sync-test")))
         .andExpect(jsonPath("$.status", is("CREATED")));
   }
 
   @Test
   void shouldReturnNotFoundWhenTestRunDoesNotExist() throws Exception {
-    when(testRunService.findById("missing-run")).thenReturn(Optional.empty());
+    UUID missingID = UUID.fromString("c66c2527-57b1-41a8-b502-a8594776c041");
+    when(testRunService.findById(missingID)).thenReturn(Optional.empty());
 
-    mockMvc.perform(get("/api/test-runs/missing-run")).andExpect(status().isNotFound());
+    mockMvc.perform(get("/api/test-runs/" + missingID)).andExpect(status().isNotFound());
   }
 
   @Test

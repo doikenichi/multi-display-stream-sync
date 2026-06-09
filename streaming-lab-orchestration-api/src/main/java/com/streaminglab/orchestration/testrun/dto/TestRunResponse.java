@@ -17,7 +17,7 @@ public record TestRunResponse(
 
   public static TestRunResponse from(TestRun testRun) {
     return new TestRunResponse(
-        testRun.testRunId(),
+        testRun.testRunId().toString(),
         testRun.streamName(),
         testRun.status(),
         testRun.hlsExternalUrl(),
