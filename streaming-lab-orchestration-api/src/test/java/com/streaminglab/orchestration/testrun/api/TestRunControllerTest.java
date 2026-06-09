@@ -86,7 +86,7 @@ class TestRunControllerTest {
     when(testRunService.findById(TEST_RUN_ID)).thenReturn(Optional.of(testRun));
 
     mockMvc
-        .perform(get("/api/test-runs/"+TEST_RUN_ID))
+        .perform(get("/api/test-runs/" + TEST_RUN_ID))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.testRunId", is(TEST_RUN_ID.toString())))
         .andExpect(jsonPath("$.streamName", is("camera-sync-test")))
@@ -125,16 +125,16 @@ class TestRunControllerTest {
   @Test
   void shouldReturnBadRequestWhenDisplayCountIsZero() throws Exception {
     mockMvc
-            .perform(
-                    post("/api/test-runs")
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .content(
-                                    """
+        .perform(
+            post("/api/test-runs")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(
+                    """
                                                 {
                                                   "streamName": "camera-sync-test",
                                                   "displayCount": 0
                                                 }
                                                 """))
-            .andExpect(status().isBadRequest());
+        .andExpect(status().isBadRequest());
   }
 }

@@ -14,7 +14,7 @@ import org.junit.jupiter.api.Test;
 
 class TestRunServiceTest {
   private final Clock fixedClock =
-          Clock.fixed(Instant.parse("2026-06-08T00:00:00Z"), ZoneOffset.UTC);
+      Clock.fixed(Instant.parse("2026-06-08T00:00:00Z"), ZoneOffset.UTC);
   private final TestRunRepository repository = new InMemoryTestRunRepository();
   private final TestRunService service = new TestRunService(repository, fixedClock);
 
@@ -38,7 +38,7 @@ class TestRunServiceTest {
 
   @Test
   void shouldFindCreatedTestRunById() {
-    TestRun created = service.createTestRun("camera-sync-test",1);
+    TestRun created = service.createTestRun("camera-sync-test", 1);
 
     Optional<TestRun> result = service.findById(created.testRunId());
 
@@ -49,7 +49,6 @@ class TestRunServiceTest {
   void shouldUseSameTestRunIdInArtifactPath() {
     TestRun testRun = service.createTestRun("camera_sync_test", 2);
 
-    assertThat(testRun.artifactPath())
-            .isEqualTo("artifacts/test-runs/" + testRun.testRunId());
+    assertThat(testRun.artifactPath()).isEqualTo("artifacts/test-runs/" + testRun.testRunId());
   }
 }
