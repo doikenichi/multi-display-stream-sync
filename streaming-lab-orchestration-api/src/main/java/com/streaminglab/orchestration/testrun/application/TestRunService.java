@@ -24,7 +24,7 @@ public class TestRunService {
     Instant now = Instant.now(this.clock);
     TestRun testRun =
         new TestRun(
-            UUID.randomUUID(),
+            testRunId,
             streamName,
             displayCount,
             TestRunStatus.CREATED,

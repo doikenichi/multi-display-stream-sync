@@ -34,7 +34,7 @@ public class TestRunController {
   }
 
   @GetMapping("/{testRunId}")
-  public ResponseEntity<TestRunResponse> getTestRun(@PathVariable @Valid UUID testRunId) {
+  public ResponseEntity<TestRunResponse> getTestRun(@PathVariable UUID testRunId) {
     return testRunService
         .findById(testRunId)
         .map(TestRunResponse::from)
