@@ -1,5 +1,7 @@
 package com.streaminglab.orchestration.testrun.api;
 
+import com.streaminglab.orchestration.testrun.application.InvalidTestRunStateTransitionException;
+import com.streaminglab.orchestration.testrun.application.TestRunNotFoundException;
 import com.streaminglab.orchestration.testrun.application.TestRunService;
 import com.streaminglab.orchestration.testrun.domain.TestRun;
 import com.streaminglab.orchestration.testrun.dto.CreateTestRunRequest;
@@ -43,8 +45,21 @@ public class TestRunController {
 
   @PostMapping("/{testRunId}/prepare")
   public ResponseEntity<TestRunResponse> prepareTestRun(@PathVariable UUID testRunId) {
-    TestRun testRun = testRunService.markAsPreparing(testRunId);
+    TestRun testRun = testRunService.prepareRun(testRunId);
 
     return ResponseEntity.ok(TestRunResponse.from(testRun));
+  }
+
+  @PostMapping("/{testRunId}/stream")
+  public ResponseEntity<TestRunResponse> streamTestRun(@PathVariable UUID testRunId) {
+    try {
+      TestRun testRun = testRunService.startStreaming(testRunId);
+      return ResponseEntity.ok(TestRunResponse.from(testRun));
+    } catch (InvalidTestRunStateTransitionException e) {
+      TestRunResponse body = new TestRunResponse(testRunId, null, null, null, null, null, null, null, e.getMessage());
+      return ResponseEntity.status(409).body(body);
+    } catch (TestRunNotFoundException e) {
+      return ResponseEntity.notFound().build();
+    }
   }
 }

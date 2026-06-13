@@ -9,6 +9,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.streaminglab.orchestration.testrun.application.InvalidTestRunStateTransitionException;
 import com.streaminglab.orchestration.testrun.application.TestRunNotFoundException;
 import com.streaminglab.orchestration.testrun.application.TestRunService;
 import com.streaminglab.orchestration.testrun.domain.TestRun;
@@ -118,7 +119,7 @@ class TestRunControllerTest {
                     """
                                 {
                                   "streamName": "",
-                                  displayCount: 1
+                                  "displayCount": 1
                                 }
                                 """))
         .andExpect(status().isBadRequest());
@@ -141,7 +142,7 @@ class TestRunControllerTest {
   }
 
   @Test
-  void shouldMarkTestRunAsPreparing() throws Exception {
+  void shouldPrepareTestRun() throws Exception {
     TestRun preparingTestRun =
         new TestRun(
             TEST_RUN_ID,
@@ -157,25 +158,85 @@ class TestRunControllerTest {
             null,
             null);
 
-    when(testRunService.markAsPreparing(TEST_RUN_ID)).thenReturn(preparingTestRun);
+    when(testRunService.prepareRun(TEST_RUN_ID)).thenReturn(preparingTestRun);
     mockMvc
         .perform(post("/api/test-runs/{testRunId}/prepare", TEST_RUN_ID))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.testRunId").value(TEST_RUN_ID.toString()))
         .andExpect(jsonPath("$.status").value("PREPARING"));
 
-    verify(testRunService).markAsPreparing(TEST_RUN_ID);
+    verify(testRunService).prepareRun(TEST_RUN_ID);
   }
 
   @Test
   void shouldReturnNotFoundWhenPreparingMissingTestRun() throws Exception {
-    when(testRunService.markAsPreparing(TEST_RUN_ID))
+    when(testRunService.prepareRun(TEST_RUN_ID))
         .thenThrow(new TestRunNotFoundException(TEST_RUN_ID));
 
     mockMvc
         .perform(post("/api/test-runs/{testRunId}/prepare", TEST_RUN_ID))
         .andExpect(status().isNotFound());
 
-    verify(testRunService).markAsPreparing(TEST_RUN_ID);
+    verify(testRunService).prepareRun(TEST_RUN_ID);
+  }
+
+  @Test
+  void shouldStartStreamingTestRun() throws Exception {
+    TestRun streamingTestRun =
+        new TestRun(
+            TEST_RUN_ID,
+            "camera_sync_test",
+            2,
+            TestRunStatus.STREAMING,
+            "http://mediamtx:8888/camera_sync_test/",
+            "http://localhost:8888/camera_sync_test/",
+            "rtsp://mediamtx:8554/camera_sync_test",
+            "artifacts/test-runs/" + TEST_RUN_ID,
+            Instant.parse("2026-06-07T00:00:00Z"),
+            null,
+            null,
+            null);
+
+    when(testRunService.startStreaming(TEST_RUN_ID)).thenReturn(streamingTestRun);
+
+    mockMvc
+        .perform(post("/api/test-runs/{testRunId}/stream", TEST_RUN_ID))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.testRunId").value(TEST_RUN_ID.toString()))
+        .andExpect(jsonPath("$.status").value("STREAMING"));
+
+    verify(testRunService).startStreaming(TEST_RUN_ID);
+  }
+
+  @Test
+  void shouldReturnNotFoundWhenStreamingMissingTestRun() throws Exception {
+    when(testRunService.startStreaming(TEST_RUN_ID))
+        .thenThrow(new TestRunNotFoundException(TEST_RUN_ID));
+
+    mockMvc
+        .perform(post("/api/test-runs/{testRunId}/stream", TEST_RUN_ID))
+        .andExpect(status().isNotFound());
+
+    verify(testRunService).startStreaming(TEST_RUN_ID);
+  }
+
+  @Test
+  void shouldReturnConflictWhenStartingStreamingNonPreparingTestRun() throws Exception {
+    InvalidTestRunStateTransitionException exception =
+        new InvalidTestRunStateTransitionException(
+            TEST_RUN_ID, TestRunStatus.CREATED, TestRunStatus.STREAMING);
+    when(testRunService.startStreaming(TEST_RUN_ID)).thenThrow(exception);
+
+    mockMvc
+        .perform(post("/api/test-runs/{testRunId}/stream", TEST_RUN_ID))
+        .andExpect(status().isConflict())
+        .andExpect(jsonPath("$.errorMessage").value(exception.getMessage()));
+
+    verify(testRunService).startStreaming(TEST_RUN_ID);
+  }
+
+  @Test
+  void shouldReturnBadRequestWhenStreamingTestRunIdIsInvalid() throws Exception {
+    mockMvc.perform(post("/api/test-runs/invalid-uuid/stream")).andExpect(status().isBadRequest());
   }
 }

@@ -59,25 +59,40 @@ public class TestRunService {
     return "artifacts/test-runs/" + testRunId;
   }
 
-  public TestRun markAsPreparing(UUID testRunId) {
+  public TestRun prepareRun(UUID testRunId) {
     TestRun testRun =
-        repository.findById(testRunId).orElseThrow(() -> new TestRunNotFoundException(testRunId));
+        this.repository
+            .findById(testRunId)
+            .orElseThrow(() -> new TestRunNotFoundException(testRunId));
 
-    TestRun updatedTestRun =
-        new TestRun(
-            testRun.testRunId(),
-            testRun.streamName(),
-            testRun.displayCount(),
-            TestRunStatus.PREPARING,
-            testRun.hlsInternalUrl(),
-            testRun.hlsExternalUrl(),
-            testRun.rtspPublishUrl(),
-            testRun.artifactPath(),
-            testRun.createdAt(),
-            testRun.startedAt(),
-            testRun.stoppedAt(),
-            testRun.errorMessage());
+    return this.repository.save(transitionTo(testRun, TestRunStatus.PREPARING));
+  }
 
-    return repository.save(updatedTestRun);
+  public TestRun startStreaming(UUID testRunId) {
+    TestRun testRun =
+        this.repository
+            .findById(testRunId)
+            .orElseThrow(() -> new TestRunNotFoundException(testRunId));
+
+    if (testRun.status() != TestRunStatus.PREPARING) {
+      throw new InvalidTestRunStateTransitionException(testRun.testRunId(), testRun.status(), TestRunStatus.STREAMING);
+    }
+    return this.repository.save(transitionTo(testRun, TestRunStatus.STREAMING));
+  }
+
+  private TestRun transitionTo(TestRun testRun, TestRunStatus status) {
+    return new TestRun(
+        testRun.testRunId(),
+        testRun.streamName(),
+        testRun.displayCount(),
+        status,
+        testRun.hlsInternalUrl(),
+        testRun.hlsExternalUrl(),
+        testRun.rtspPublishUrl(),
+        testRun.artifactPath(),
+        testRun.createdAt(),
+        testRun.startedAt(),
+        testRun.stoppedAt(),
+        testRun.errorMessage());
   }
 }

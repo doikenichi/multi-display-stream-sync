@@ -1,6 +1,6 @@
 package com.streaminglab.orchestration.testrun.application;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.*;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 
 import com.streaminglab.orchestration.testrun.domain.TestRun;
@@ -18,11 +18,11 @@ class TestRunServiceTest {
   private final Clock fixedClock =
       Clock.fixed(Instant.parse("2026-06-08T00:00:00Z"), ZoneOffset.UTC);
   private final TestRunRepository repository = new InMemoryTestRunRepository();
-  private final TestRunService service = new TestRunService(repository, fixedClock);
+  private final TestRunService testRunService = new TestRunService(repository, fixedClock);
 
   @Test
   void shouldCreateTestRunWithCreatedStatus() {
-    TestRun testRun = service.createTestRun("camera_sync_test", 2);
+    TestRun testRun = testRunService.createTestRun("camera_sync_test", 2);
 
     assertThat(testRun.testRunId()).isNotNull();
     assertThat(testRun.streamName()).isEqualTo("camera_sync_test");
@@ -40,35 +40,70 @@ class TestRunServiceTest {
 
   @Test
   void shouldFindCreatedTestRunById() {
-    TestRun created = service.createTestRun("camera-sync-test", 1);
+    TestRun created = testRunService.createTestRun("camera-sync-test", 1);
 
-    Optional<TestRun> result = service.findById(created.testRunId());
+    Optional<TestRun> result = testRunService.findById(created.testRunId());
 
     assertThat(result).contains(created);
   }
 
   @Test
   void shouldUseSameTestRunIdInArtifactPath() {
-    TestRun testRun = service.createTestRun("camera_sync_test", 2);
+    TestRun testRun = testRunService.createTestRun("camera_sync_test", 2);
 
     assertThat(testRun.artifactPath()).isEqualTo("artifacts/test-runs/" + testRun.testRunId());
   }
 
   @Test
   void shouldMarkCreatedTestRunAsPreparing() {
-    TestRun testRun = service.createTestRun("camera_sync_test", 2);
+    TestRun testRun = testRunService.createTestRun("camera_sync_test", 2);
 
-    TestRun updatedTestRun = service.markAsPreparing(testRun.testRunId());
+    TestRun updatedTestRun = testRunService.prepareRun(testRun.testRunId());
 
     assertThat(updatedTestRun.status()).isEqualTo(TestRunStatus.PREPARING);
+    assertThat(updatedTestRun.testRunId()).isEqualTo(testRun.testRunId());
+    assertThat(updatedTestRun.streamName()).isEqualTo(testRun.streamName());
+    assertThat(updatedTestRun.artifactPath()).isEqualTo(testRun.artifactPath());
   }
 
   @Test
   void shouldThrowExceptionWhenMarkingMissingTestRunAsPreparing() {
     UUID missingTestRunId = UUID.randomUUID();
 
-    assertThatThrownBy(() -> service.markAsPreparing(missingTestRunId))
+    assertThatThrownBy(() -> testRunService.prepareRun(missingTestRunId))
         .isInstanceOf(TestRunNotFoundException.class)
         .hasMessage("Test run not found: " + missingTestRunId);
+  }
+
+  @Test
+  void shouldStartStreamingPreparedTestRun() {
+    TestRun testRun = testRunService.createTestRun("camera_sync_test", 2);
+    TestRun preparingTestRun = testRunService.prepareRun(testRun.testRunId());
+
+    TestRun streamingTestRun = testRunService.startStreaming(preparingTestRun.testRunId());
+
+    assertThat(streamingTestRun.status()).isEqualTo(TestRunStatus.STREAMING);
+    assertThat(streamingTestRun.testRunId()).isEqualTo(testRun.testRunId());
+    assertThat(streamingTestRun.streamName()).isEqualTo(testRun.streamName());
+    assertThat(streamingTestRun.artifactPath()).isEqualTo(testRun.artifactPath());
+  }
+
+  @Test
+  void shouldRejectStartingStreamingWhenTestRunIsNotPreparing() {
+    TestRun testRun = testRunService.createTestRun("camera_sync_test", 2);
+
+    assertThatThrownBy(() -> testRunService.startStreaming(testRun.testRunId()))
+        .isInstanceOf(InvalidTestRunStateTransitionException.class)
+        .hasMessageContaining("CREATED")
+        .hasMessageContaining(testRun.testRunId().toString());
+  }
+
+  @Test
+  void shouldThrowNotFoundWhenStartingStreamingMissingTestRun() {
+    UUID missingTestRunId = UUID.randomUUID();
+
+    assertThatThrownBy(() -> testRunService.startStreaming(missingTestRunId))
+            .isInstanceOf(TestRunNotFoundException.class)
+            .hasMessage("Test run not found: " + missingTestRunId);
   }
 }
