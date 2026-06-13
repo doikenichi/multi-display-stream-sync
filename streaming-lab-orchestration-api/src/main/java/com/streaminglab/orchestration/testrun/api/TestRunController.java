@@ -48,9 +48,10 @@ public class TestRunController {
     try {
       TestRun testRun = testRunService.prepareRun(testRunId);
 
-    return ResponseEntity.ok(TestRunResponse.from(testRun));
+      return ResponseEntity.ok(TestRunResponse.from(testRun));
     } catch (InvalidTestRunStateTransitionException e) {
-      TestRunResponse body = new TestRunResponse(testRunId, null, null, null, null, null, null, null, e.getMessage());
+      TestRunResponse body =
+          new TestRunResponse(testRunId, null, null, null, null, null, null, null, e.getMessage());
       return ResponseEntity.status(409).body(body);
     } catch (TestRunNotFoundException e) {
       return ResponseEntity.notFound().build();
@@ -63,7 +64,8 @@ public class TestRunController {
       TestRun testRun = testRunService.startStreaming(testRunId);
       return ResponseEntity.ok(TestRunResponse.from(testRun));
     } catch (InvalidTestRunStateTransitionException e) {
-      TestRunResponse body = new TestRunResponse(testRunId, null, null, null, null, null, null, null, e.getMessage());
+      TestRunResponse body =
+          new TestRunResponse(testRunId, null, null, null, null, null, null, null, e.getMessage());
       return ResponseEntity.status(409).body(body);
     } catch (TestRunNotFoundException e) {
       return ResponseEntity.notFound().build();
