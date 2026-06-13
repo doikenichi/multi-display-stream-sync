@@ -13,6 +13,8 @@ import java.time.ZoneOffset;
 import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 
 class TestRunServiceTest {
   private final Clock fixedClock =
@@ -54,9 +56,29 @@ class TestRunServiceTest {
     assertThat(testRun.artifactPath()).isEqualTo("artifacts/test-runs/" + testRun.testRunId());
   }
 
-  @Test
-  void shouldMarkCreatedTestRunAsPreparing() {
+  @ParameterizedTest
+  @EnumSource(
+      value = TestRunStatus.class,
+      names = {"CREATED", "FAILED", "STOPPED"})
+  void shouldPrepareRunFromAllowedStatus(TestRunStatus allowedStatus) {
     TestRun testRun = testRunService.createTestRun("camera_sync_test", 2);
+
+    TestRun runWithAllowedStatus =
+        new TestRun(
+            testRun.testRunId(),
+            testRun.streamName(),
+            testRun.displayCount(),
+            allowedStatus,
+            testRun.hlsInternalUrl(),
+            testRun.hlsExternalUrl(),
+            testRun.rtspPublishUrl(),
+            testRun.artifactPath(),
+            testRun.createdAt(),
+            testRun.startedAt(),
+            testRun.stoppedAt(),
+            testRun.errorMessage());
+
+    repository.save(runWithAllowedStatus);
 
     TestRun updatedTestRun = testRunService.prepareRun(testRun.testRunId());
 
@@ -64,6 +86,33 @@ class TestRunServiceTest {
     assertThat(updatedTestRun.testRunId()).isEqualTo(testRun.testRunId());
     assertThat(updatedTestRun.streamName()).isEqualTo(testRun.streamName());
     assertThat(updatedTestRun.artifactPath()).isEqualTo(testRun.artifactPath());
+  }
+
+  @Test
+  void shouldRejectPreparingWhenTestRunIsNotValid() {
+    TestRun testRun = testRunService.createTestRun("camera_sync_test", 2);
+    TestRun failedRun =
+        new TestRun(
+            testRun.testRunId(),
+            testRun.streamName(),
+            testRun.displayCount(),
+            TestRunStatus.STREAMING,
+            testRun.hlsInternalUrl(),
+            testRun.hlsExternalUrl(),
+            testRun.rtspPublishUrl(),
+            testRun.artifactPath(),
+            testRun.createdAt(),
+            testRun.startedAt(),
+            testRun.stoppedAt(),
+            testRun.errorMessage());
+    repository.save(failedRun);
+
+    assertThatThrownBy(() -> testRunService.prepareRun(testRun.testRunId()))
+        .isInstanceOf(InvalidTestRunStateTransitionException.class)
+        .hasMessageContaining(TestRunStatus.CREATED.toString())
+        .hasMessageContaining(TestRunStatus.FAILED.toString())
+        .hasMessageContaining(TestRunStatus.STOPPED.toString())
+        .hasMessageContaining(testRun.testRunId().toString());
   }
 
   @Test
@@ -94,7 +143,7 @@ class TestRunServiceTest {
 
     assertThatThrownBy(() -> testRunService.startStreaming(testRun.testRunId()))
         .isInstanceOf(InvalidTestRunStateTransitionException.class)
-        .hasMessageContaining("CREATED")
+        .hasMessageContaining(TestRunStatus.CREATED.toString())
         .hasMessageContaining(testRun.testRunId().toString());
   }
 
@@ -103,7 +152,7 @@ class TestRunServiceTest {
     UUID missingTestRunId = UUID.randomUUID();
 
     assertThatThrownBy(() -> testRunService.startStreaming(missingTestRunId))
-            .isInstanceOf(TestRunNotFoundException.class)
-            .hasMessage("Test run not found: " + missingTestRunId);
+        .isInstanceOf(TestRunNotFoundException.class)
+        .hasMessage("Test run not found: " + missingTestRunId);
   }
 }

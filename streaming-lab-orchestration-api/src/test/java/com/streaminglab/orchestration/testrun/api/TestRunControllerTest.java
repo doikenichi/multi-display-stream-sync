@@ -1,5 +1,7 @@
 package com.streaminglab.orchestration.testrun.api;
 
+import static com.streaminglab.orchestration.testrun.application.TestRunService.PREPARED_VALID_STATUS_TRANSITIONS;
+import static com.streaminglab.orchestration.testrun.application.TestRunService.STREAM_VALID_STATUS_TRANSITIONS;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
@@ -169,6 +171,21 @@ class TestRunControllerTest {
   }
 
   @Test
+  void shouldReturnConflictWhenPreparingStreamingNonValidTestRun() throws Exception {
+    InvalidTestRunStateTransitionException exception =
+        new InvalidTestRunStateTransitionException(
+            TEST_RUN_ID, TestRunStatus.STREAMING, PREPARED_VALID_STATUS_TRANSITIONS);
+    when(testRunService.prepareRun(TEST_RUN_ID)).thenThrow(exception);
+
+    mockMvc
+        .perform(post("/api/test-runs/{testRunId}/prepare", TEST_RUN_ID))
+        .andExpect(status().isConflict())
+        .andExpect(jsonPath("$.errorMessage").value(exception.getMessage()));
+
+    verify(testRunService).prepareRun(TEST_RUN_ID);
+  }
+
+  @Test
   void shouldReturnNotFoundWhenPreparingMissingTestRun() throws Exception {
     when(testRunService.prepareRun(TEST_RUN_ID))
         .thenThrow(new TestRunNotFoundException(TEST_RUN_ID));
@@ -224,7 +241,7 @@ class TestRunControllerTest {
   void shouldReturnConflictWhenStartingStreamingNonPreparingTestRun() throws Exception {
     InvalidTestRunStateTransitionException exception =
         new InvalidTestRunStateTransitionException(
-            TEST_RUN_ID, TestRunStatus.CREATED, TestRunStatus.STREAMING);
+            TEST_RUN_ID, TestRunStatus.CREATED, STREAM_VALID_STATUS_TRANSITIONS);
     when(testRunService.startStreaming(TEST_RUN_ID)).thenThrow(exception);
 
     mockMvc

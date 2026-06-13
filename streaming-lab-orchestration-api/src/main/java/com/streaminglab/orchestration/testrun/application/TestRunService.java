@@ -5,12 +5,14 @@ import com.streaminglab.orchestration.testrun.domain.TestRunStatus;
 import com.streaminglab.orchestration.testrun.repository.TestRunRepository;
 import java.time.Clock;
 import java.time.Instant;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
+
 import org.springframework.stereotype.Service;
 
 @Service
 public class TestRunService {
+  public static final List<TestRunStatus> PREPARED_VALID_STATUS_TRANSITIONS = List.of(TestRunStatus.CREATED, TestRunStatus.FAILED, TestRunStatus.STOPPED);
+  public static final List<TestRunStatus> STREAM_VALID_STATUS_TRANSITIONS = List.of(TestRunStatus.PREPARING);
   private final TestRunRepository repository;
   private final Clock clock;
 
@@ -65,6 +67,9 @@ public class TestRunService {
             .findById(testRunId)
             .orElseThrow(() -> new TestRunNotFoundException(testRunId));
 
+    if (testRun.status() != TestRunStatus.CREATED && testRun.status() != TestRunStatus.FAILED && testRun.status() != TestRunStatus.STOPPED) {
+      throw new InvalidTestRunStateTransitionException(testRun.testRunId(), testRun.status(), PREPARED_VALID_STATUS_TRANSITIONS);
+    }
     return this.repository.save(transitionTo(testRun, TestRunStatus.PREPARING));
   }
 
@@ -75,7 +80,7 @@ public class TestRunService {
             .orElseThrow(() -> new TestRunNotFoundException(testRunId));
 
     if (testRun.status() != TestRunStatus.PREPARING) {
-      throw new InvalidTestRunStateTransitionException(testRun.testRunId(), testRun.status(), TestRunStatus.STREAMING);
+      throw new InvalidTestRunStateTransitionException(testRun.testRunId(), testRun.status(), STREAM_VALID_STATUS_TRANSITIONS);
     }
     return this.repository.save(transitionTo(testRun, TestRunStatus.STREAMING));
   }

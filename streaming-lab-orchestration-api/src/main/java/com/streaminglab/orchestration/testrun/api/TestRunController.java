@@ -45,9 +45,16 @@ public class TestRunController {
 
   @PostMapping("/{testRunId}/prepare")
   public ResponseEntity<TestRunResponse> prepareTestRun(@PathVariable UUID testRunId) {
-    TestRun testRun = testRunService.prepareRun(testRunId);
+    try {
+      TestRun testRun = testRunService.prepareRun(testRunId);
 
     return ResponseEntity.ok(TestRunResponse.from(testRun));
+    } catch (InvalidTestRunStateTransitionException e) {
+      TestRunResponse body = new TestRunResponse(testRunId, null, null, null, null, null, null, null, e.getMessage());
+      return ResponseEntity.status(409).body(body);
+    } catch (TestRunNotFoundException e) {
+      return ResponseEntity.notFound().build();
+    }
   }
 
   @PostMapping("/{testRunId}/stream")
