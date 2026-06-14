@@ -1,10 +1,12 @@
 package com.streaminglab.orchestration.testrun.domain;
 
 import java.time.Instant;
+import java.util.UUID;
 
 public record TestRun(
-    String testRunId,
+    UUID testRunId,
     String streamName,
+    int displayCount,
     TestRunStatus status,
     String hlsInternalUrl,
     String hlsExternalUrl,
