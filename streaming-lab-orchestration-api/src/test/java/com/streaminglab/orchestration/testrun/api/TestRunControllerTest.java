@@ -22,10 +22,12 @@ import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
+@Import(TestRunExceptionHandler.class)
 @WebMvcTest(TestRunController.class)
 class TestRunControllerTest {
 
@@ -33,7 +35,7 @@ class TestRunControllerTest {
 
   @MockitoBean private TestRunService testRunService;
 
-  private final UUID TEST_RUN_ID = UUID.fromString("848791c4-5cc1-41cf-b98a-9cbcae4d7eab");
+  private static final UUID TEST_RUN_ID = UUID.fromString("848791c4-5cc1-41cf-b98a-9cbcae4d7eab");
 
   @Test
   void shouldCreateTestRun() throws Exception {
@@ -171,7 +173,7 @@ class TestRunControllerTest {
   }
 
   @Test
-  void shouldReturnConflictWhenPreparingStreamingNonValidTestRun() throws Exception {
+  void shouldReturnConflictWhenPreparingRunFromInvalidStatus() throws Exception {
     InvalidTestRunStateTransitionException exception =
         new InvalidTestRunStateTransitionException(
             TEST_RUN_ID, TestRunStatus.STREAMING, PREPARED_VALID_STATUS_TRANSITIONS);

@@ -12,6 +12,7 @@ import java.time.Instant;
 import java.time.ZoneOffset;
 import java.util.Optional;
 import java.util.UUID;
+import org.jspecify.annotations.NonNull;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
@@ -21,6 +22,22 @@ class TestRunServiceTest {
       Clock.fixed(Instant.parse("2026-06-08T00:00:00Z"), ZoneOffset.UTC);
   private final TestRunRepository repository = new InMemoryTestRunRepository();
   private final TestRunService testRunService = new TestRunService(repository, fixedClock);
+
+  private static @NonNull TestRun copyWithStatus(TestRunStatus targetStatus, TestRun testRun) {
+    return new TestRun(
+        testRun.testRunId(),
+        testRun.streamName(),
+        testRun.displayCount(),
+        targetStatus,
+        testRun.hlsInternalUrl(),
+        testRun.hlsExternalUrl(),
+        testRun.rtspPublishUrl(),
+        testRun.artifactPath(),
+        testRun.createdAt(),
+        testRun.startedAt(),
+        testRun.stoppedAt(),
+        testRun.errorMessage());
+  }
 
   @Test
   void shouldCreateTestRunWithCreatedStatus() {
@@ -63,20 +80,7 @@ class TestRunServiceTest {
   void shouldPrepareRunFromAllowedStatus(TestRunStatus allowedStatus) {
     TestRun testRun = testRunService.createTestRun("camera_sync_test", 2);
 
-    TestRun runWithAllowedStatus =
-        new TestRun(
-            testRun.testRunId(),
-            testRun.streamName(),
-            testRun.displayCount(),
-            allowedStatus,
-            testRun.hlsInternalUrl(),
-            testRun.hlsExternalUrl(),
-            testRun.rtspPublishUrl(),
-            testRun.artifactPath(),
-            testRun.createdAt(),
-            testRun.startedAt(),
-            testRun.stoppedAt(),
-            testRun.errorMessage());
+    TestRun runWithAllowedStatus = copyWithStatus(allowedStatus, testRun);
 
     repository.save(runWithAllowedStatus);
 
@@ -88,30 +92,21 @@ class TestRunServiceTest {
     assertThat(updatedTestRun.artifactPath()).isEqualTo(testRun.artifactPath());
   }
 
-  @Test
-  void shouldRejectPreparingWhenTestRunIsNotValid() {
+  @ParameterizedTest
+  @EnumSource(
+      value = TestRunStatus.class,
+      names = {"PREPARING", "STREAMING", "STOPPING"})
+  void shouldRejectPrepareRunFromDisallowedStatus(TestRunStatus disallowedStatus) {
     TestRun testRun = testRunService.createTestRun("camera_sync_test", 2);
-    TestRun failedRun =
-        new TestRun(
-            testRun.testRunId(),
-            testRun.streamName(),
-            testRun.displayCount(),
-            TestRunStatus.STREAMING,
-            testRun.hlsInternalUrl(),
-            testRun.hlsExternalUrl(),
-            testRun.rtspPublishUrl(),
-            testRun.artifactPath(),
-            testRun.createdAt(),
-            testRun.startedAt(),
-            testRun.stoppedAt(),
-            testRun.errorMessage());
-    repository.save(failedRun);
+    TestRun runWithDisallowedStatus = copyWithStatus(disallowedStatus, testRun);
+    repository.save(runWithDisallowedStatus);
 
     assertThatThrownBy(() -> testRunService.prepareRun(testRun.testRunId()))
         .isInstanceOf(InvalidTestRunStateTransitionException.class)
         .hasMessageContaining(TestRunStatus.CREATED.toString())
         .hasMessageContaining(TestRunStatus.FAILED.toString())
         .hasMessageContaining(TestRunStatus.STOPPED.toString())
+        .hasMessageContaining(disallowedStatus.toString())
         .hasMessageContaining(testRun.testRunId().toString());
   }
 
@@ -137,13 +132,19 @@ class TestRunServiceTest {
     assertThat(streamingTestRun.artifactPath()).isEqualTo(testRun.artifactPath());
   }
 
-  @Test
-  void shouldRejectStartingStreamingWhenTestRunIsNotPreparing() {
+  @ParameterizedTest
+  @EnumSource(
+      value = TestRunStatus.class,
+      names = {"CREATED", "STREAMING", "STOPPING", "STOPPED", "FAILED"})
+  void shouldRejectStartingStreamingFromDisallowedStatus(TestRunStatus disallowedStatus) {
     TestRun testRun = testRunService.createTestRun("camera_sync_test", 2);
+    TestRun runWithDisallowedStatus = copyWithStatus(disallowedStatus, testRun);
+    repository.save(runWithDisallowedStatus);
 
     assertThatThrownBy(() -> testRunService.startStreaming(testRun.testRunId()))
         .isInstanceOf(InvalidTestRunStateTransitionException.class)
-        .hasMessageContaining(TestRunStatus.CREATED.toString())
+        .hasMessageContaining(TestRunStatus.PREPARING.toString())
+        .hasMessageContaining(disallowedStatus.toString())
         .hasMessageContaining(testRun.testRunId().toString());
   }
 

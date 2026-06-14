@@ -13,8 +13,7 @@ public record TestRunResponse(
     String artifactPath,
     Instant createdAt,
     Instant startedAt,
-    Instant stoppedAt,
-    String errorMessage) {
+    Instant stoppedAt) {
 
   public static TestRunResponse from(TestRun testRun) {
     return new TestRunResponse(
@@ -25,7 +24,6 @@ public record TestRunResponse(
         testRun.artifactPath(),
         testRun.createdAt(),
         testRun.startedAt(),
-        testRun.stoppedAt(),
-        testRun.errorMessage());
+        testRun.stoppedAt());
   }
 }
