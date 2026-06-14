@@ -1,6 +1,6 @@
 package com.streaminglab.orchestration.testrun.application;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 
 import com.streaminglab.orchestration.testrun.domain.TestRun;
