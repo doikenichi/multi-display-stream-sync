@@ -17,7 +17,6 @@ import com.streaminglab.orchestration.testrun.application.TestRunService;
 import com.streaminglab.orchestration.testrun.domain.TestRun;
 import com.streaminglab.orchestration.testrun.domain.TestRunStatus;
 import java.time.Instant;
-import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,9 +26,9 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
-@Import(TestRunExceptionHandler.class)
-@WebMvcTest(TestRunController.class)
-class TestRunControllerTest {
+@Import({CommandApiExceptionHandler.class, CommonApiExceptionHandler.class})
+@WebMvcTest(TestRunCommandController.class)
+class TestRunControllerTestCommand {
 
   @Autowired private MockMvc mockMvc;
 
@@ -74,43 +73,11 @@ class TestRunControllerTest {
   }
 
   @Test
-  void shouldReturnTestRunById() throws Exception {
-    TestRun testRun =
-        new TestRun(
-            TEST_RUN_ID,
-            "camera-sync-test",
-            1,
-            TestRunStatus.CREATED,
-            "",
-            "",
-            "",
-            "",
-            Instant.parse("2026-06-07T00:00:00Z"),
-            null,
-            null,
-            null);
-
-    when(testRunService.findById(TEST_RUN_ID)).thenReturn(Optional.of(testRun));
-
-    mockMvc
-        .perform(get("/api/test-runs/" + TEST_RUN_ID))
-        .andExpect(status().isOk())
-        .andExpect(jsonPath("$.testRunId", is(TEST_RUN_ID.toString())))
-        .andExpect(jsonPath("$.streamName", is("camera-sync-test")))
-        .andExpect(jsonPath("$.status", is("CREATED")));
-  }
-
-  @Test
   void shouldReturnNotFoundWhenTestRunDoesNotExist() throws Exception {
     UUID missingID = UUID.fromString("c66c2527-57b1-41a8-b502-a8594776c041");
-    when(testRunService.findById(missingID)).thenReturn(Optional.empty());
+    when(testRunService.findById(missingID)).thenThrow(new TestRunNotFoundException(missingID));
 
     mockMvc.perform(get("/api/test-runs/" + missingID)).andExpect(status().isNotFound());
-  }
-
-  @Test
-  void shouldReturnBadRequestWhenInvalidIDFormat() throws Exception {
-    mockMvc.perform(get("/api/test-runs/invalid-uuid")).andExpect(status().isBadRequest());
   }
 
   @Test
@@ -176,7 +143,10 @@ class TestRunControllerTest {
   void shouldReturnConflictWhenPreparingRunFromInvalidStatus() throws Exception {
     InvalidTestRunStateTransitionException exception =
         new InvalidTestRunStateTransitionException(
-            TEST_RUN_ID, TestRunStatus.STREAMING, PREPARED_VALID_STATUS_TRANSITIONS);
+            TEST_RUN_ID,
+            TestRunStatus.STREAMING,
+            TestRunStatus.PREPARING,
+            PREPARED_VALID_STATUS_TRANSITIONS);
     when(testRunService.prepareRun(TEST_RUN_ID)).thenThrow(exception);
 
     mockMvc
@@ -243,7 +213,10 @@ class TestRunControllerTest {
   void shouldReturnConflictWhenStartingStreamingNonPreparingTestRun() throws Exception {
     InvalidTestRunStateTransitionException exception =
         new InvalidTestRunStateTransitionException(
-            TEST_RUN_ID, TestRunStatus.CREATED, STREAM_VALID_STATUS_TRANSITIONS);
+            TEST_RUN_ID,
+            TestRunStatus.CREATED,
+            TestRunStatus.STREAMING,
+            STREAM_VALID_STATUS_TRANSITIONS);
     when(testRunService.startStreaming(TEST_RUN_ID)).thenThrow(exception);
 
     mockMvc

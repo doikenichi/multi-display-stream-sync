@@ -6,13 +6,18 @@ import java.util.UUID;
 
 public class InvalidTestRunStateTransitionException extends RuntimeException {
   public InvalidTestRunStateTransitionException(
-      UUID testRunId, TestRunStatus currentStatus, List<TestRunStatus> targetStatuses) {
+      UUID testRunId,
+      TestRunStatus currentStatus,
+      TestRunStatus targetStatus,
+      List<TestRunStatus> targetStatuses) {
     super(
         "cannot transition test run "
             + testRunId.toString()
+            + " with status "
+            + currentStatus
             + " to status "
-            + targetStatuses
-            + " when test run is "
-            + currentStatus);
+            + targetStatus
+            + ". allowed statuses are "
+            + targetStatuses);
   }
 }
