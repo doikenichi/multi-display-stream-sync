@@ -90,7 +90,7 @@ public class TestRunCommandController {
 
   @Operation(summary = "Fail a test run", description = "Transitions a test run to FAILED.")
   @PostMapping("/{testRunId}/fail")
-  public ResponseEntity<TestRunResponse> failedTestRun(
+  public ResponseEntity<TestRunResponse> failTestRun(
       @Parameter(description = "Test run identifier.", required = true) @PathVariable
           UUID testRunId,
       @Valid @RequestBody FailTestRunRequest request) {
