@@ -3,6 +3,7 @@ package com.streaminglab.orchestration.testrun.api;
 import com.streaminglab.orchestration.testrun.application.TestRunService;
 import com.streaminglab.orchestration.testrun.domain.TestRun;
 import com.streaminglab.orchestration.testrun.dto.CreateTestRunRequest;
+import com.streaminglab.orchestration.testrun.dto.FailTestRunRequest;
 import com.streaminglab.orchestration.testrun.dto.TestRunResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -62,6 +63,38 @@ public class TestRunCommandController {
       @Parameter(description = "Test run identifier.", required = true) @PathVariable
           UUID testRunId) {
     TestRun testRun = testRunService.startStreaming(testRunId);
+    return ResponseEntity.ok(TestRunResponse.from(testRun));
+  }
+
+  @Operation(
+      summary = "Attempt to stop a streaming test run",
+      description = "Transitions a STREAMING test run to STOPPING.")
+  @PostMapping("/{testRunId}/stop")
+  public ResponseEntity<TestRunResponse> stopTestRun(
+      @Parameter(description = "Test run identifier.", required = true) @PathVariable
+          UUID testRunId) {
+    TestRun testRun = testRunService.stopTestRun(testRunId);
+    return ResponseEntity.ok(TestRunResponse.from(testRun));
+  }
+
+  @Operation(
+      summary = "Mark a test run as stopped",
+      description = "Transitions a STOPPING test run to STOPPED.")
+  @PostMapping("/{testRunId}/stopped")
+  public ResponseEntity<TestRunResponse> markAsStoppedTestRun(
+      @Parameter(description = "Test run identifier.", required = true) @PathVariable
+          UUID testRunId) {
+    TestRun testRun = testRunService.markTestRunStopped(testRunId);
+    return ResponseEntity.ok(TestRunResponse.from(testRun));
+  }
+
+  @Operation(summary = "Fail a test run", description = "Transitions a test run to FAILED.")
+  @PostMapping("/{testRunId}/fail")
+  public ResponseEntity<TestRunResponse> failedTestRun(
+      @Parameter(description = "Test run identifier.", required = true) @PathVariable
+          UUID testRunId,
+      @Valid @RequestBody FailTestRunRequest request) {
+    TestRun testRun = testRunService.failTestRun(testRunId, request.errorMessage());
     return ResponseEntity.ok(TestRunResponse.from(testRun));
   }
 }

@@ -165,6 +165,12 @@ public class TestRunService {
   }
 
   public TestRun failTestRun(UUID testRunId, String errorMessage) {
+    if (errorMessage == null || errorMessage.isBlank()) {
+      throw new IllegalArgumentException("errorMessage must not be blank");
+    }
+    if (testRunId == null) {
+      throw new IllegalArgumentException("testRunId must not be null");
+    }
     TestRun testRun = this.findById(testRunId);
 
     if (!canFail(testRun.status())) {

@@ -6,6 +6,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.streaminglab.orchestration.testrun.application.TestRunNotFoundException;
 import com.streaminglab.orchestration.testrun.application.TestRunService;
 import com.streaminglab.orchestration.testrun.domain.TestRun;
 import com.streaminglab.orchestration.testrun.domain.TestRunStatus;
@@ -20,7 +21,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 @Import(CommonApiExceptionHandler.class)
 @WebMvcTest(TestRunQueryController.class)
-public class TestRunControllerTestQuery {
+public class TestRunQueryControllerTest {
   @Autowired private MockMvc mockMvc;
 
   @MockitoBean private TestRunService testRunService;
@@ -57,5 +58,13 @@ public class TestRunControllerTestQuery {
   @Test
   void shouldReturnBadRequestWhenInvalidIDFormat() throws Exception {
     mockMvc.perform(get("/api/test-runs/invalid-uuid")).andExpect(status().isBadRequest());
+  }
+
+  @Test
+  void shouldReturnNotFoundWhenTestRunDoesNotExist() throws Exception {
+    UUID missingID = UUID.fromString("c66c2527-57b1-41a8-b502-a8594776c041");
+    when(testRunService.findById(missingID)).thenThrow(new TestRunNotFoundException(missingID));
+
+    mockMvc.perform(get("/api/test-runs/" + missingID)).andExpect(status().isNotFound());
   }
 }

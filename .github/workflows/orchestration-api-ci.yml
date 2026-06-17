@@ -39,4 +39,7 @@ jobs:
         run: chmod +x ./gradlew
 
       - name: Run quality gate
-        run: ./gradlew clean spotlessCheck check test
+        run: ./gradlew clean spotlessCheck check checkstyleMain checkstyleTest test
+
+      - name: Build
+        run: ./gradlew clean build
