@@ -1,0 +1,34 @@
+name: Docker Compose Smoke
+
+on:
+  pull_request:
+    paths:
+      - "docker-compose.yaml"
+      - "streaming-lab-orchestration-api/**"
+      - ".github/workflows/docker-compose-smoke.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+jobs:
+  pre-deployment-smoke:
+    name: Pre-deployment smoke
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: streaming-lab-orchestration-api
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "25"
+          cache: gradle
+
+      - name: Verify Gradle setup
+        run: ./gradlew tasks --group verification
