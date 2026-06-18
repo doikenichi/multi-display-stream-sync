@@ -48,3 +48,37 @@ dependencies {
 tasks.named('test') {
     useJUnitPlatform()
 }
+// https://www.baeldung.com/gradle-source-sets
+// https://docs.gradle.org/current/userguide/java_testing.html
+// validate with ./gradlew tasks --group verification and check that smokeTest is listed
+sourceSets {
+    smokeTest {
+        java {
+            srcDir 'src/smokeTest/java'
+        }
+        resources {
+            srcDir 'src/smokeTest/resources'
+        }
+        compileClasspath += sourceSets.main.output + configurations.testRuntimeClasspath
+        runtimeClasspath += output + compileClasspath
+    }
+}
+
+configurations {
+    smokeTestImplementation.extendsFrom testImplementation
+    smokeTestRuntimeOnly.extendsFrom testRuntimeOnly
+}
+
+tasks.register('smokeTest', Test) {
+    description = 'Runs smoke tests against an already-running Docker Compose environment.'
+    group = 'verification'
+
+    testClassesDirs = sourceSets.smokeTest.output.classesDirs
+    classpath = sourceSets.smokeTest.runtimeClasspath
+
+    useJUnitPlatform()
+
+    systemProperty 'smoke.baseUrl', System.getProperty('smoke.baseUrl', 'http://localhost:8080')
+
+    shouldRunAfter test
+}
