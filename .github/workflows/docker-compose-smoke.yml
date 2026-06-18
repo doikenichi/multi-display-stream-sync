@@ -51,3 +51,21 @@ jobs:
       - name: Run orchestration API smoke tests
         working-directory: streaming-lab-orchestration-api
         run: ./gradlew smokeTest
+
+      - name: Print Docker Compose logs on failure
+        if: failure()
+        run: docker compose logs
+
+      - name: Upload smoke test reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: orchestration-api-smoke-test-reports
+          path: |
+            streaming-lab-orchestration-api/build/reports/tests/smokeTest
+            streaming-lab-orchestration-api/build/test-results/smokeTest
+          if-no-files-found: ignore
+
+      - name: Stop Docker Compose environment
+        if: always()
+        run: docker compose down -v
