@@ -14,11 +14,6 @@ jobs:
   pre-deployment-smoke:
     name: Pre-deployment smoke
     runs-on: ubuntu-latest
-
-    defaults:
-      run:
-        working-directory: streaming-lab-orchestration-api
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -31,4 +26,24 @@ jobs:
           cache: gradle
 
       - name: Verify Gradle setup
+        working-directory: streaming-lab-orchestration-api
         run: ./gradlew tasks --group verification
+
+      - name: Start Docker Compose environment
+        run: docker compose up --build -d orchestration-api
+
+      - name: Wait for orchestration API health
+        run: |
+          for i in {1..30}; do
+            if curl -fsS http://localhost:8080/actuator/health | grep -q '"status":"UP"'; then
+              echo "Orchestration API is healthy"
+              exit 0
+            fi
+
+            echo "Waiting for orchestration API health... attempt $i"
+            sleep 2
+          done
+
+          echo "Orchestration API did not become healthy in time"
+          docker compose logs orchestration-api
+          exit 1
