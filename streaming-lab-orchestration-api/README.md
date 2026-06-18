@@ -732,6 +732,45 @@ Do not run full streaming E2E validation for every small change until the pipeli
 
 ---
 
+### Orchestration API smoke test
+
+The Orchestration API includes a separate `smokeTest` Gradle task.
+
+This task validates the already-running Docker Compose API through real HTTP calls. It does not start the Spring
+application inside the test JVM.
+
+Run Docker Compose first:
+
+```bash
+docker compose up --build -d
+````
+
+Then run:
+
+```bash
+cd streaming-lab-orchestration-api
+./gradlew smokeTest
+```
+
+Current smoke coverage:
+
+* `GET /actuator/health` returns `UP`
+* API can execute `create → prepare → stream → get` and reach `STREAMING`
+
+Run:
+
+```bash
+./gradlew smokeTest
+```
+
+Then run:
+
+```bash 
+./gradlew spotlessCheck checkstyleMain checkstyleTest test
+```
+
+---
+
 ## When to Update This README
 
 Update this README when any of the following happens:

@@ -1,0 +1,71 @@
+name: Docker Compose Smoke
+
+on:
+  pull_request:
+    paths:
+      - "docker-compose.yaml"
+      - "streaming-lab-orchestration-api/**"
+      - ".github/workflows/docker-compose-smoke.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+jobs:
+  pre-deployment-smoke:
+    name: Pre-deployment smoke
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "25"
+          cache: gradle
+
+      - name: Verify Gradle setup
+        working-directory: streaming-lab-orchestration-api
+        run: ./gradlew tasks --group verification
+
+      - name: Start Docker Compose environment
+        run: docker compose up --build -d orchestration-api
+
+      - name: Wait for orchestration API health
+        run: |
+          for i in {1..30}; do
+            if curl -fsS http://localhost:8080/actuator/health | grep -q '"status":"UP"'; then
+              echo "Orchestration API is healthy"
+              exit 0
+            fi
+
+            echo "Waiting for orchestration API health... attempt $i"
+            sleep 2
+          done
+
+          echo "Orchestration API did not become healthy in time"
+          docker compose logs orchestration-api
+          exit 1
+
+      - name: Run orchestration API smoke tests
+        working-directory: streaming-lab-orchestration-api
+        run: ./gradlew smokeTest
+
+      - name: Print Docker Compose logs on failure
+        if: failure()
+        run: docker compose logs
+
+      - name: Upload smoke test reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: orchestration-api-smoke-test-reports
+          path: |
+            streaming-lab-orchestration-api/build/reports/tests/smokeTest
+            streaming-lab-orchestration-api/build/test-results/smokeTest
+          if-no-files-found: ignore
+
+      - name: Stop Docker Compose environment
+        if: always()
+        run: docker compose down -v
