@@ -47,3 +47,7 @@ jobs:
           echo "Orchestration API did not become healthy in time"
           docker compose logs orchestration-api
           exit 1
+
+      - name: Run orchestration API smoke tests
+        working-directory: streaming-lab-orchestration-api
+        run: ./gradlew smokeTest
