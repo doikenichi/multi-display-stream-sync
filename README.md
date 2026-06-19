@@ -1023,3 +1023,22 @@ one liner
 ```
 ffmpeg -re -f lavfi -i "testsrc=size=1280x720:rate=30" -vf "drawtext=fontfile='C\:/Windows/Fonts/arial.ttf':text='SOURCE\: CAMERA_SYNC_TEST FRAME\: %{n} TIME\: %{pts\:hms}':x=40:y=40:fontsize=36:fontcolor=white:box=1:boxcolor=black@0.6" -c:v libx264 -preset veryfast -tune zerolatency -pix_fmt yuv420p -rtsp_transport tcp -f rtsp rtsp://localhost:8554/camera_sync_test
 ```
+
+
+### Display Client Playback Smoke
+
+The Display Client can be opened with runtime query parameters:
+
+`/display?displayId=DISPLAY_01&streamUrl=http%3A%2F%2Flocalhost%3A8888%2Fcamera_sync_test%2Findex.m3u8&debug=true`
+
+This validates browser playback of the MediaMTX HLS stream using hls.js.
+
+Manual smoke criteria:
+
+- Display ID is shown correctly.
+- Stream URL is assigned.
+- Playback status is `PLAYING`.
+- Ready state reaches `4`.
+- Video dimensions are `1280x720`.
+- Current time increases.
+- Last error is `None`.
