@@ -1,1 +1,5 @@
 /.idea/
+/artifacts/test-runs/*
+!/artifacts/test-runs/.gitkeep
+node_modules/
+dist/

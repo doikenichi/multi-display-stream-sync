@@ -1,0 +1,32 @@
+{
+  "name": "multi-display-stream-sync",
+  "version": "1.0.0",
+  "description": "This project is a proof-of-concept test automation lab for validating **multi-display video stream synchronization** in an internet-style streaming environment.",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "validate:evidence-schema": "tsx scripts/validate-playback-status-schema.ts"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/doikenichi/multi-display-stream-sync.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/doikenichi/multi-display-stream-sync/issues"
+  },
+  "homepage": "https://github.com/doikenichi/multi-display-stream-sync#readme",
+  "devDependencies": {
+    "@types/node": "^25.9.3",
+    "ajv": "^8.20.0",
+    "ajv-formats": "^3.0.1",
+    "tsx": "^4.22.4",
+    "typescript": "^6.0.3"
+  }
+}
