@@ -460,6 +460,22 @@ A stronger implementation may include a QR code or ArUco marker containing the s
 
 The frame number is the key value for synchronization testing.
 
+## Synthetic Stream Generator
+
+The local Docker Compose environment includes an FFmpeg generator service that publishes a deterministic synthetic stream to MediaMTX.
+
+Flow:
+
+FFmpeg generator → RTSP → MediaMTX → HLS → Display Client/browser
+
+Initial stream:
+
+- Stream name: `camera_sync_test`
+- RTSP publish path: `rtsp://mediamtx:8554/camera_sync_test`
+- HLS playback URL: `http://localhost:8888/camera_sync_test/`
+
+The stream includes a visible overlay with stream name, frame number, PTS timestamp, and FPS. This prepares the project for future playback evidence and synchronization validation.
+
 ---
 
 ## Synchronization Validation Strategy
