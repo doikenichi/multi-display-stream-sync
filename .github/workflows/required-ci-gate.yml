@@ -17,6 +17,7 @@ jobs:
     outputs:
       orchestration_api_changed: ${{ steps.filter.outputs.orchestration_api }}
       display_client_changed: ${{ steps.filter.outputs.display_client }}
+      evidence_contracts_changed: ${{ steps.filter.outputs.evidence_contracts }}
 
     steps:
       - name: Checkout repository
@@ -33,6 +34,10 @@ jobs:
             display_client:
               - 'display-client/**'
               - '.github/workflows/required-ci-gate.yml'
+            evidence_contracts:
+              - 'test-framework/contracts/**'
+              - 'test-framework/tools/**'
+              - '.github/workflows/evidence-contracts-ci.yml'
 
   validate-orchestration-api:
     name: Validate Orchestration API
@@ -88,6 +93,30 @@ jobs:
       - name: Run Display Client validation
         run: npm run lint && npm run build
 
+  validate-evidence-contracts:
+    name: Validate Evidence Contracts
+    runs-on: ubuntu-latest
+    needs: detect-changes
+    if: needs.detect-changes.outputs.evidence_contracts_changed == 'true'
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: test-framework/tools/evidence-contract-validator/package-lock.json
+
+      - name: Install dependencies
+        working-directory: ./test-framework/tools/evidence-contract-validator
+        run: npm ci
+
+      - name: Validate evidence contracts
+        working-directory: ./test-framework/tools/evidence-contract-validator
+        run: npm run test:evidence-contracts
+
   required-ci-gate:
     name: Required CI Gate
     runs-on: ubuntu-latest
@@ -95,6 +124,7 @@ jobs:
       - detect-changes
       - validate-orchestration-api
       - validate-display-client
+      - validate-evidence-contracts
     if: always()
 
     steps:
@@ -102,8 +132,10 @@ jobs:
         run: |
           echo "orchestration_api_changed=${{ needs.detect-changes.outputs.orchestration_api_changed }}"
           echo "display_client_changed=${{ needs.detect-changes.outputs.display_client_changed }}"
+          echo "evidence_contracts_changed=${{ needs.detect-changes.outputs.evidence_contracts_changed }}"
           echo "validate-orchestration-api result=${{ needs.validate-orchestration-api.result }}"
           echo "validate-display-client result=${{ needs.validate-display-client.result }}"
+          echo "validate-evidence-contracts result=${{ needs.validate-evidence-contracts.result }}"
 
           if [[ "${{ needs.detect-changes.outputs.orchestration_api_changed }}" == "true" && "${{ needs.validate-orchestration-api.result }}" != "success" ]]; then
             echo "Orchestration API changed, but validation did not pass."
