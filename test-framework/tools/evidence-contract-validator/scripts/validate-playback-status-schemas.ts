@@ -2,7 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import process from "node:process";
 import Ajv2020 from "ajv/dist/2020";
-import type { ErrorObject } from "ajv";
+import type { AnySchema, ErrorObject } from "ajv";
 import addFormats from "ajv-formats";
 
 type JsonValue =
@@ -13,36 +13,28 @@ type JsonValue =
   | JsonValue[]
   | { [key: string]: JsonValue };
 
-const rootDir = process.cwd();
+const contractsDir = path.resolve(process.cwd(), "..", "..", "contracts");
 
 const evidenceContracts = [
   {
     name: "playback status",
     schemaPath: path.join(
-      rootDir,
-      "docs",
-      "templates",
+      contractsDir,
+      "schemas",
       "playback-status.schema.json",
     ),
     examplePath: path.join(
-      rootDir,
-      "docs",
-      "templates",
+      contractsDir,
+      "examples",
       "playback-status.example.json",
     ),
   },
   {
     name: "sync report",
-    schemaPath: path.join(
-      rootDir,
-      "docs",
-      "templates",
-      "sync-report.schema.json",
-    ),
+    schemaPath: path.join(contractsDir, "schemas", "sync-report.schema.json"),
     examplePath: path.join(
-      rootDir,
-      "docs",
-      "templates",
+      contractsDir,
+      "examples",
       "sync-report.example.json",
     ),
   },
@@ -64,6 +56,10 @@ function readJson(filePath: string): JsonValue {
   }
 }
 
+function readSchema(filePath: string): AnySchema {
+  return readJson(filePath) as AnySchema;
+}
+
 function formatValidationErrors(
   errors: ErrorObject[] | null | undefined,
 ): string {
@@ -80,7 +76,7 @@ function formatValidationErrors(
 }
 
 for (const { name, schemaPath, examplePath } of evidenceContracts) {
-  const schemaFile = readJson(schemaPath);
+  const schemaFile = readSchema(schemaPath);
   const example = readJson(examplePath);
 
   const ajv = new Ajv2020({

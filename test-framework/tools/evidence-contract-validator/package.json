@@ -8,7 +8,8 @@
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "validate:evidence-schemas": "tsx scripts/validate-playback-status-schemas.ts"
+    "test:evidence-contracts": "tsx scripts/validate-playback-status-schemas.ts",
+    "typecheck": "tsc --noEmit"
   },
   "repository": {
     "type": "git",
