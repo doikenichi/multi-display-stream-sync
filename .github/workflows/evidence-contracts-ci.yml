@@ -14,6 +14,9 @@ on:
       - "test-framework/tools/**"
       - ".github/workflows/evidence-contracts-ci.yml"
 
+permissions:
+  contents: read
+
 jobs:
   evidence-contracts:
     name: Evidence contract tests
