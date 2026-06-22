@@ -17,8 +17,9 @@ services:
       -re
       -f lavfi
       -i testsrc=size=1280x720:rate=30
-      -vf "drawtext=text='stream=camera_sync_test':x=20:y=20:fontsize=30:fontcolor=white:box=1:boxcolor=black,
-          drawtext=text='frame=%{n} | pts=%{pts\\:hms} | fps=30':x=20:y=60:fontsize=30:fontcolor=white:box=1:boxcolor=black"
+      -vf "drawtext=text='SRC camera_sync_test':x=20:y=20:fontsize=30:fontcolor=white:box=1:boxcolor=black,
+        drawtext=text='F %{n}':x=20:y=60:fontsize=30:fontcolor=white:box=1:boxcolor=black,
+        drawtext=text='T %{pts\\:hms} FPS 30':x=20:y=100:fontsize=30:fontcolor=white:box=1:boxcolor=black"
       -c:v libx264
       -preset veryfast
       -tune zerolatency

@@ -1,0 +1,130 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "sync-report.schema.json",
+  "title": "Sync Report Evidence",
+  "description": "Schema for multi-display synchronization evidence collected during Streaming Lab test runs.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "testRunId",
+    "evidenceType",
+    "streamUrl",
+    "sourceId",
+    "displays",
+    "comparison",
+    "notes",
+    "capturedAt"
+  ],
+  "properties": {
+    "testRunId": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Unique identifier for the test run that produced this sync report."
+    },
+    "evidenceType": {
+      "type": "string",
+      "enum": ["manual-sync-observation", "automated-sync-validation"],
+      "description": "Type of sync evidence collection that produced this report."
+    },
+    "streamUrl": {
+      "type": "string",
+      "format": "uri",
+      "description": "HLS stream URL used by the displays."
+    },
+    "sourceId": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Logical stream/source identifier, such as camera_sync_test."
+    },
+    "displays": {
+      "type": "array",
+      "minItems": 2,
+      "description": "Per-display observed frame evidence used for comparison.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "displayId",
+          "observedFrameNumber",
+          "observedPts",
+          "playbackStatusPath",
+          "screenshotPath"
+        ],
+        "properties": {
+          "displayId": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Identifier for the display/browser instance, such as DISPLAY_01."
+          },
+          "observedFrameNumber": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Visible frame number observed from the FFmpeg overlay."
+          },
+          "observedPts": {
+            "type": "string",
+            "pattern": "^\\d{2}:\\d{2}:\\d{2}\\.\\d{3}$",
+            "description": "Visible PTS timestamp observed from the FFmpeg overlay, formatted as HH:MM:SS.mmm."
+          },
+          "playbackStatusPath": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Relative path to this display's playback-status.json file."
+          },
+          "screenshotPath": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Relative path to this display's screenshot evidence."
+          }
+        }
+      }
+    },
+    "comparison": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "frameDifference",
+        "ptsDifferenceSeconds",
+        "toleranceFrames",
+        "toleranceSeconds",
+        "result"
+      ],
+      "properties": {
+        "frameDifference": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Absolute frame difference between the compared displays."
+        },
+        "ptsDifferenceSeconds": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Absolute PTS difference in seconds between the compared displays."
+        },
+        "toleranceFrames": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Maximum accepted frame difference."
+        },
+        "toleranceSeconds": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Maximum accepted PTS difference in seconds."
+        },
+        "result": {
+          "type": "string",
+          "enum": ["PASS", "FAIL", "INCONCLUSIVE"],
+          "description": "Synchronization comparison result."
+        }
+      }
+    },
+    "notes": {
+      "type": "string",
+      "description": "Human-readable notes about the sync observation or validation."
+    },
+    "capturedAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Timestamp when the sync report was captured."
+    }
+  }
+}
