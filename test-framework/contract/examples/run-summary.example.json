@@ -1,0 +1,37 @@
+{
+  "testRunId": "8f6b2a4e-0000-4000-9000-000000000000",
+  "implementation": "jvm",
+  "framework": "cucumber-jvm",
+  "profile": "local",
+  "scenario": {
+    "feature": "HLS playback validation",
+    "name": "Validate playback progression for a display client",
+    "tags": [
+      "@contract",
+      "@smoke",
+      "@playback"
+    ]
+  },
+  "orchestrator": {
+    "baseUrl": "http://localhost:8080",
+    "finalStatus": "STOPPED"
+  },
+  "status": "PASSED",
+  "startedAt": "2026-07-01T10:00:00Z",
+  "finishedAt": "2026-07-01T10:00:25Z",
+  "durationMs": 25000,
+  "artifactDirectory": "artifacts/jvm/local/8f6b2a4e-0000-4000-9000-000000000000",
+  "artifacts": {
+    "playbackStatus": "playback-status.json",
+    "runSummary": "run-summary.json",
+    "logFile": "playback.log",
+    "screenshots": [
+      "screenshots/playback-progressed.png"
+    ],
+    "rawResults": [
+      "raw-results/cucumber-report.json",
+      "raw-results/junit-results.xml"
+    ]
+  },
+  "failure": null
+}

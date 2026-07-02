@@ -1,0 +1,225 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "playback-status.schema.json",
+  "title": "Playback Status Evidence",
+  "description": "Schema for automated Display Client playback evidence collected during Streaming Lab test runs.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "testRunId",
+    "implementation",
+    "profile",
+    "streamId",
+    "displayId",
+    "status",
+    "stream",
+    "browser",
+    "playback",
+    "artifacts",
+    "capturedAt"
+  ],
+  "properties": {
+    "testRunId": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Canonical test run identifier returned by streaming-lab-orchestration-api."
+    },
+    "implementation": {
+      "type": "string",
+      "enum": [
+        "jvm",
+        "node",
+        "python"
+      ],
+      "description": "Framework implementation that produced this evidence."
+    },
+    "profile": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Active test framework profile, such as local, ci, docker, or k8s."
+    },
+    "streamId": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Logical stream identifier, such as camera_sync_test."
+    },
+    "displayId": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Identifier for the browser display instance, such as DISPLAY_01."
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "PASSED",
+        "FAILED",
+        "INCONCLUSIVE"
+      ],
+      "description": "Evidence-level validation result."
+    },
+    "stream": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "hlsUrl"
+      ],
+      "properties": {
+        "hlsUrl": {
+          "type": "string",
+          "format": "uri",
+          "description": "HLS stream URL used by the Display Client."
+        }
+      }
+    },
+    "browser": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "playbackMode",
+        "readyState",
+        "videoWidth",
+        "videoHeight",
+        "autoplay",
+        "muted"
+      ],
+      "properties": {
+        "playbackMode": {
+          "type": "string",
+          "enum": [
+            "hls.js",
+            "native-hls",
+            "unknown"
+          ],
+          "description": "Playback implementation observed by the browser client."
+        },
+        "readyState": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 4,
+          "description": "HTMLMediaElement readyState value."
+        },
+        "videoWidth": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Observed video width in pixels."
+        },
+        "videoHeight": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Observed video height in pixels."
+        },
+        "autoplay": {
+          "type": "boolean",
+          "description": "Whether autoplay was enabled."
+        },
+        "muted": {
+          "type": "boolean",
+          "description": "Whether the video element was muted."
+        }
+      }
+    },
+    "playback": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "videoLoaded",
+        "initialCurrentTimeSeconds",
+        "finalCurrentTimeSeconds",
+        "minimumProgressSeconds",
+        "progressed",
+        "lastError",
+        "errorType",
+        "errorDetails",
+        "fatalError"
+      ],
+      "properties": {
+        "videoLoaded": {
+          "type": "boolean",
+          "description": "Whether the video element reached a loaded/playable state."
+        },
+        "initialCurrentTimeSeconds": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Initial playback time captured before waiting for progression."
+        },
+        "finalCurrentTimeSeconds": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Final playback time captured after waiting for progression."
+        },
+        "minimumProgressSeconds": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Minimum configured playback progression required by the scenario."
+        },
+        "progressed": {
+          "type": "boolean",
+          "description": "Whether playback progressed by at least the configured minimum."
+        },
+        "lastError": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "Last playback or HLS error message, if any."
+        },
+        "errorType": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "Error category reported by the playback layer, if any."
+        },
+        "errorDetails": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "Additional playback error details, if any."
+        },
+        "fatalError": {
+          "type": [
+            "boolean",
+            "null"
+          ],
+          "description": "Whether the playback error was fatal, if known."
+        }
+      }
+    },
+    "artifacts": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "artifactDirectory",
+        "logFile",
+        "screenshots"
+      ],
+      "properties": {
+        "artifactDirectory": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Relative artifact directory for this test run."
+        },
+        "logFile": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Relative path to playback.log."
+        },
+        "screenshots": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "description": "Relative screenshot paths."
+        }
+      }
+    },
+    "capturedAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Timestamp when playback evidence was written."
+    }
+  }
+}

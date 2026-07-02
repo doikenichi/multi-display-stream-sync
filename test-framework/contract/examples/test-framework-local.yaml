@@ -1,0 +1,39 @@
+profile: local
+
+orchestrationApi:
+  baseUrl: http://localhost:8080
+  timeoutMs: 5000
+
+displayClient:
+  baseUrl: http://localhost:3000
+  timeoutMs: 15000
+  displayId: DISPLAY_01
+
+streaming:
+  hlsBaseUrl: http://localhost:8888
+  streamId: camera_sync_test
+
+browser:
+  headless: true
+  viewport:
+    width: 1280
+    height: 720
+
+playback:
+  minimumProgressSeconds: 2
+  timeoutMs: 30000
+  pollIntervalMs: 500
+
+evidence:
+  outputDir: artifacts
+  screenshotsEnabled: true
+  logsEnabled: true
+
+reporting:
+  reportPortalEnabled: false
+  launchName: streaming-lab-contract-local
+  attributes:
+    - project:streaming-lab
+    - profile:local
+    - layer:contract
+    - artifact-contract:v1

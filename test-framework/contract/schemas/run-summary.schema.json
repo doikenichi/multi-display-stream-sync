@@ -1,0 +1,183 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "run-summary.schema.json",
+  "title": "Run Summary Evidence",
+  "description": "Schema for framework-level execution summary evidence.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "testRunId",
+    "implementation",
+    "framework",
+    "profile",
+    "scenario",
+    "orchestrator",
+    "status",
+    "startedAt",
+    "finishedAt",
+    "durationMs",
+    "artifactDirectory",
+    "artifacts"
+  ],
+  "properties": {
+    "testRunId": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Canonical test run identifier returned by streaming-lab-orchestration-api."
+    },
+    "implementation": {
+      "type": "string",
+      "enum": [
+        "jvm",
+        "node",
+        "python"
+      ]
+    },
+    "framework": {
+      "type": "string",
+      "enum": [
+        "cucumber-jvm",
+        "cucumber-js",
+        "pytest-bdd"
+      ]
+    },
+    "profile": {
+      "type": "string",
+      "minLength": 1
+    },
+    "scenario": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "feature",
+        "name",
+        "tags"
+      ],
+      "properties": {
+        "feature": {
+          "type": "string",
+          "minLength": 1
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^@.+"
+          }
+        }
+      }
+    },
+    "orchestrator": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "baseUrl",
+        "finalStatus"
+      ],
+      "properties": {
+        "baseUrl": {
+          "type": "string",
+          "format": "uri"
+        },
+        "finalStatus": {
+          "type": "string",
+          "enum": [
+            "CREATED",
+            "PREPARING",
+            "STREAMING",
+            "STOPPED",
+            "FAILED"
+          ]
+        }
+      }
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "PASSED",
+        "FAILED",
+        "SKIPPED",
+        "INCONCLUSIVE"
+      ]
+    },
+    "startedAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "finishedAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "durationMs": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "artifactDirectory": {
+      "type": "string",
+      "minLength": 1
+    },
+    "artifacts": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "playbackStatus",
+        "runSummary",
+        "logFile",
+        "screenshots",
+        "rawResults"
+      ],
+      "properties": {
+        "playbackStatus": {
+          "type": "string",
+          "minLength": 1
+        },
+        "runSummary": {
+          "type": "string",
+          "minLength": 1
+        },
+        "logFile": {
+          "type": "string",
+          "minLength": 1
+        },
+        "screenshots": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "rawResults": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    },
+    "failure": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "additionalProperties": false,
+      "required": [
+        "message"
+      ],
+      "properties": {
+        "message": {
+          "type": "string",
+          "minLength": 1
+        },
+        "category": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    }
+  }
+}
