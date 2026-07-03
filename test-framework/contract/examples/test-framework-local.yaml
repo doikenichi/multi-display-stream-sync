@@ -25,7 +25,7 @@ playback:
   pollIntervalMs: 500
 
 evidence:
-  outputDir: artifacts
+  outputDir: build/evidence
   screenshotsEnabled: true
   logsEnabled: true
 

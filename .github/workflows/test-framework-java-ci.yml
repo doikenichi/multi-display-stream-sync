@@ -1,30 +1,30 @@
-name: Orchestration API CI
+name: Test Framework Java CI
 
 on:
   pull_request:
     paths:
       - "config/**"
-      - "streaming-lab-orchestration-api/**"
-      - ".github/workflows/orchestration-api-ci.yml"
+      - "test-framework/java/**"
+      - ".github/workflows/test-framework-java-ci.yml"
   push:
     branches:
       - main
     paths:
       - "config/**"
-      - "streaming-lab-orchestration-api/**"
-      - ".github/workflows/orchestration-api-ci.yml"
+      - "test-framework/java/**"
+      - ".github/workflows/test-framework-java-ci.yml"
 
 permissions:
   contents: read
 
 jobs:
-  build:
-    name: Build and test Orchestration API
+  quality:
+    name: Test Framework Java quality gate
     runs-on: ubuntu-latest
 
     defaults:
       run:
-        working-directory: streaming-lab-orchestration-api
+        working-directory: test-framework/java
 
     steps:
       - name: Checkout repository
@@ -47,8 +47,8 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: orchestration-api-java-quality-reports
+          name: test-framework-java-quality-reports
           path: |
-            streaming-lab-orchestration-api/build/reports/
-            streaming-lab-orchestration-api/build/test-results/
+            test-framework/java/build/reports/
+            test-framework/java/build/test-results/
           if-no-files-found: warn

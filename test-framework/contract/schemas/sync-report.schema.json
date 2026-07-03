@@ -18,8 +18,8 @@
   "properties": {
     "testRunId": {
       "type": "string",
-      "minLength": 1,
-      "description": "Unique identifier for the test run that produced this sync report."
+      "format": "uuid",
+      "description": "Canonical test run identifier returned by streaming-lab-orchestration-api."
     },
     "evidenceType": {
       "type": "string",

@@ -75,8 +75,8 @@ class TestRunCommandControllerTest {
    * invoked.
    *
    * <p>source reference: <a
-   * href="https://stackoverflow.com/questions/70127774/functiont-r-as-additional-argument-in-junit-5">Function<T,
-   * R> as additional argument in Junit 5</a> <a
+   * href="https://stackoverflow.com/questions/70127774/functiont-r-as-additional-argument-in-junit-5">Function&lt;T,
+   * R&gt; as additional argument in Junit 5</a> <a
    * href="https://www.baeldung.com/parameterized-tests-junit-5">Parameterized Tests in JUnit 5</a>
    *
    * @return a {@code Stream} of {@code Arguments}, where each set of arguments contains: - The API

@@ -6,10 +6,16 @@
 <module name="Checker">
     <property name="severity" value="error"/>
 
+    <module name="SuppressionFilter">
+        <property name="file" value="${config_loc}/suppressions.xml"/>
+    </module>
+
+    <module name="NewlineAtEndOfFile"/>
+
     <module name="TreeWalker">
-        <module name="UnusedImports"/>
-        <module name="NeedBraces"/>
         <module name="AvoidStarImport"/>
+        <module name="NeedBraces"/>
         <module name="OneTopLevelClass"/>
+        <module name="UnusedImports"/>
     </module>
 </module>

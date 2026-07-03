@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.UUID;
 
 public class InvalidTestRunStateTransitionException extends RuntimeException {
+  private static final long serialVersionUID = 1L;
+
   public InvalidTestRunStateTransitionException(
       UUID testRunId,
       TestRunStatus currentStatus,
