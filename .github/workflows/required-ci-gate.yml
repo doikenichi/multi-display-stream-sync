@@ -168,7 +168,7 @@ jobs:
 
       - name: Validate evidence contracts
         working-directory: ./test-framework/tools/evidence-contract-validator
-        run: npm run test:evidence-contracts
+        run: npm run validate:evidence-contracts
 
   required-ci-gate:
     name: Required CI Gate
