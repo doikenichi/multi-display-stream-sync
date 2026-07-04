@@ -6,6 +6,7 @@ import com.streaminglab.testframework.config.TestFrameworkConfig;
 import com.streaminglab.testframework.dto.CreateTestRunRequest;
 import com.streaminglab.testframework.dto.TestRunResponse;
 import java.io.IOException;
+import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -42,8 +43,7 @@ public class OrchestrationApiClient {
                     .build();
 
     HttpResponse<String> response = send(httpRequest);
-
-    if (response.statusCode() != 201) {
+    if (response.statusCode() != HttpURLConnection.HTTP_CREATED ) {
       throw new IllegalStateException(
               "Failed to create test run. Status: "
                       + response.statusCode()
@@ -55,11 +55,45 @@ public class OrchestrationApiClient {
   }
 
   public TestRunResponse prepareTestRun(UUID testRunId) {
-    throw new UnsupportedOperationException("Prepare test run API call is not implemented yet.");
+    HttpRequest httpRequest =
+            HttpRequest.newBuilder()
+                    .uri(URI.create(config.baseUrl()).resolve("/api/test-runs/"+testRunId+"/prepare"))
+                    .timeout(Duration.ofMillis(config.timeoutMs()))
+                    .header("Accept", "application/json")
+                    .POST(HttpRequest.BodyPublishers.noBody())
+                    .build();
+
+    HttpResponse<String> response = send(httpRequest);
+    if (response.statusCode() != HttpURLConnection.HTTP_OK ) {
+      throw new IllegalStateException(
+              "Failed to create test run. Status: "
+                      + response.statusCode()
+                      + ", body: "
+                      + response.body());
+    }
+
+    return fromJson(response.body(), TestRunResponse.class);
   }
 
   public TestRunResponse startStream(UUID testRunId) {
-    throw new UnsupportedOperationException("Start stream API call is not implemented yet.");
+    HttpRequest httpRequest =
+            HttpRequest.newBuilder()
+                    .uri(URI.create(config.baseUrl()).resolve("/api/test-runs/"+testRunId+"/stream"))
+                    .timeout(Duration.ofMillis(config.timeoutMs()))
+                    .header("Accept", "application/json")
+                    .POST(HttpRequest.BodyPublishers.noBody())
+                    .build();
+
+    HttpResponse<String> response = send(httpRequest);
+    if (response.statusCode() != HttpURLConnection.HTTP_OK ) {
+      throw new IllegalStateException(
+              "Failed to create test run. Status: "
+                      + response.statusCode()
+                      + ", body: "
+                      + response.body());
+    }
+
+    return fromJson(response.body(), TestRunResponse.class);
   }
 
   public TestRunResponse stopTestRun(UUID testRunId) {
@@ -71,7 +105,24 @@ public class OrchestrationApiClient {
   }
 
   public TestRunResponse getTestRun(UUID testRunId) {
-    throw new UnsupportedOperationException("Get test run API call is not implemented yet.");
+    HttpRequest httpRequest =
+            HttpRequest.newBuilder()
+                    .uri(URI.create(config.baseUrl()).resolve("/api/test-runs/"+testRunId))
+                    .timeout(Duration.ofMillis(config.timeoutMs()))
+                    .header("Accept", "application/json")
+                    .GET()
+                    .build();
+    HttpResponse<String> response = send(httpRequest);
+
+    if (response.statusCode() != HttpURLConnection.HTTP_OK ) {
+      throw new IllegalStateException(
+              "Failed to create test run. Status: "
+                      + response.statusCode()
+                      + ", body: "
+                      + response.body());
+    }
+
+    return fromJson(response.body(), TestRunResponse.class);
   }
 
   public String baseUrl() {

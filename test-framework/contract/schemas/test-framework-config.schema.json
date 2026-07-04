@@ -18,20 +18,12 @@
   "properties": {
     "profile": {
       "type": "string",
-      "enum": [
-        "local",
-        "ci",
-        "docker",
-        "k8s"
-      ]
+      "enum": ["local", "ci", "docker", "k8s"]
     },
     "orchestrationApi": {
       "type": "object",
       "additionalProperties": false,
-      "required": [
-        "baseUrl",
-        "timeoutMs"
-      ],
+      "required": ["baseUrl", "timeoutMs"],
       "properties": {
         "baseUrl": {
           "type": "string",
@@ -46,11 +38,7 @@
     "displayClient": {
       "type": "object",
       "additionalProperties": false,
-      "required": [
-        "baseUrl",
-        "timeoutMs",
-        "displayId"
-      ],
+      "required": ["baseUrl", "timeoutMs", "displayId"],
       "properties": {
         "baseUrl": {
           "type": "string",
@@ -69,16 +57,13 @@
     "streaming": {
       "type": "object",
       "additionalProperties": false,
-      "required": [
-        "hlsBaseUrl",
-        "streamId"
-      ],
+      "required": ["hlsBaseUrl", "streamName"],
       "properties": {
         "hlsBaseUrl": {
           "type": "string",
           "format": "uri"
         },
-        "streamId": {
+        "streamName": {
           "type": "string",
           "minLength": 1
         }
@@ -87,10 +72,7 @@
     "browser": {
       "type": "object",
       "additionalProperties": false,
-      "required": [
-        "headless",
-        "viewport"
-      ],
+      "required": ["headless", "viewport"],
       "properties": {
         "headless": {
           "type": "boolean"
@@ -98,10 +80,7 @@
         "viewport": {
           "type": "object",
           "additionalProperties": false,
-          "required": [
-            "width",
-            "height"
-          ],
+          "required": ["width", "height"],
           "properties": {
             "width": {
               "type": "integer",
@@ -118,11 +97,7 @@
     "playback": {
       "type": "object",
       "additionalProperties": false,
-      "required": [
-        "minimumProgressSeconds",
-        "timeoutMs",
-        "pollIntervalMs"
-      ],
+      "required": ["minimumProgressSeconds", "timeoutMs", "pollIntervalMs"],
       "properties": {
         "minimumProgressSeconds": {
           "type": "number",
@@ -141,11 +116,7 @@
     "evidence": {
       "type": "object",
       "additionalProperties": false,
-      "required": [
-        "outputDir",
-        "screenshotsEnabled",
-        "logsEnabled"
-      ],
+      "required": ["outputDir", "screenshotsEnabled", "logsEnabled"],
       "properties": {
         "outputDir": {
           "type": "string",
@@ -162,11 +133,7 @@
     "reporting": {
       "type": "object",
       "additionalProperties": false,
-      "required": [
-        "reportPortalEnabled",
-        "launchName",
-        "attributes"
-      ],
+      "required": ["reportPortalEnabled", "launchName", "attributes"],
       "properties": {
         "reportPortalEnabled": {
           "type": "boolean"

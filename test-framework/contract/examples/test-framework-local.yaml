@@ -11,7 +11,7 @@ displayClient:
 
 streaming:
   hlsBaseUrl: http://localhost:8888
-  streamId: camera_sync_test
+  streamName: camera_sync_test
 
 browser:
   headless: true

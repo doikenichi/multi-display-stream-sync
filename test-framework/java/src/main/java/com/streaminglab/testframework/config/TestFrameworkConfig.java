@@ -1,5 +1,7 @@
 package com.streaminglab.testframework.config;
 
+import java.util.UUID;
+
 public record TestFrameworkConfig(
         String profile,
         OrchestrationApiConfig orchestrationApi,
@@ -12,9 +14,9 @@ public record TestFrameworkConfig(
 
   public record OrchestrationApiConfig(String baseUrl, int timeoutMs) {}
 
-  public record DisplayClientConfig(String baseUrl, int timeoutMs) {}
+  public record DisplayClientConfig(String baseUrl, int timeoutMs, String displayId) {}
 
-  public record StreamingConfig(String hlsBaseUrl, String streamId) {}
+  public record StreamingConfig(String hlsBaseUrl, String streamName) {}
 
   public record BrowserConfig(boolean headless, ViewportConfig viewport) {}
 

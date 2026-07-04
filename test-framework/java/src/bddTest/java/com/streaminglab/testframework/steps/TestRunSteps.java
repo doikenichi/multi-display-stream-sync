@@ -30,7 +30,7 @@ public class TestRunSteps {
   @Given("a new test run exists")
   public void aNewTestRunExists() {
     CreateTestRunRequest request =
-            new CreateTestRunRequest(config.streaming().streamId(), SINGLE_DISPLAY_CLIENT);
+            new CreateTestRunRequest(config.streaming().streamName(), SINGLE_DISPLAY_CLIENT);
 
     TestRunResponse response = orchestrationApiClient.createTestRun(request);
 
@@ -39,27 +39,49 @@ public class TestRunSteps {
 
     context.setTestRunId(response.testRunId());
     context.setCurrentTestRunStatus(response.status());
-    context.setStreamId(response.streamName());
+    context.setStreamName(response.streamName());
     context.setHlsStreamUrl(response.hlsExternalUrl());
   }
 
   @Given("the test run is prepared")
   public void theTestRunIsPrepared() {
-    throw new PendingException("Prepare test run through streaming-lab-orchestration-api.");
+    TestRunResponse response = orchestrationApiClient.prepareTestRun(context.getTestRunId());
+    assertThat(response.testRunId()).isNotNull();
+    assertThat(response.status()).isEqualTo("PREPARING");
+    assertThat(response.streamName()).isEqualTo(context.getStreamName());
+
+    context.setCurrentTestRunStatus(response.status());
   }
 
   @When("the stream is started")
   public void theStreamIsStarted() {
-    throw new PendingException("Start stream through streaming-lab-orchestration-api.");
+    TestRunResponse response = orchestrationApiClient.startStream(context.getTestRunId());
+    assertThat(response.testRunId()).isNotNull();
+    assertThat(response.status()).isEqualTo("STREAMING");
+    assertThat(response.streamName()).isEqualTo(context.getStreamName());
+
+    context.setCurrentTestRunStatus(response.status());
   }
 
   @When("the test run is stopped")
   public void theTestRunIsStopped() {
-    throw new PendingException("Stop test run through streaming-lab-orchestration-api.");
+    TestRunResponse response = orchestrationApiClient.stopTestRun(context.getTestRunId());
+    assertThat(response.testRunId()).isNotNull();
+    assertThat(response.status()).isEqualTo("STOPPING");
+    assertThat(response.streamName()).isEqualTo(context.getStreamName());
+
+    context.setCurrentTestRunStatus(response.status());
+
   }
 
   @Then("the test run should be stopped")
   public void theTestRunShouldBeStopped() {
-    throw new PendingException("Verify STOPPED status through the orchestrator response or GET endpoint.");
+    TestRunResponse response = orchestrationApiClient.getTestRun(context.getTestRunId());
+    assertThat(response.testRunId()).isNotNull();
+    assertThat(response.status()).isEqualTo("STOPPED");
+    assertThat(response.streamName()).isEqualTo(context.getStreamName());
+
+    context.setCurrentTestRunStatus(response.status());
+
   }
 }

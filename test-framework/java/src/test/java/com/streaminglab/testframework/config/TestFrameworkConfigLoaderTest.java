@@ -2,6 +2,7 @@ package com.streaminglab.testframework.config;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.util.UUID;
 import org.junit.jupiter.api.Test;
 
 class TestFrameworkConfigLoaderTest {
@@ -17,9 +18,11 @@ class TestFrameworkConfigLoaderTest {
 
         assertThat(config.displayClient().baseUrl()).isEqualTo("http://localhost:3000");
         assertThat(config.displayClient().timeoutMs()).isGreaterThan(0);
+        assertThat(config.displayClient().displayId()).isEqualTo("DISPLAY_01");
 
         assertThat(config.streaming().hlsBaseUrl()).isEqualTo("http://localhost:8888");
-        assertThat(config.streaming().streamId()).isEqualTo("camera_sync_test");
+        assertThat(config.streaming().streamName())
+                .isEqualTo(UUID.fromString("camera_sync_test"));
 
         assertThat(config.browser().headless()).isTrue();
         assertThat(config.browser().viewport().width()).isEqualTo(1280);

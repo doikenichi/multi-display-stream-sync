@@ -13,7 +13,7 @@ public class ScenarioContext {
 
     private UUID testRunId;
     private String currentTestRunStatus;
-    private String streamId;
+    private String streamName;
     private String hlsStreamUrl;
     private String displayClientUrl;
     private Path artifactDirectory;
@@ -35,12 +35,12 @@ public class ScenarioContext {
         this.currentTestRunStatus = currentTestRunStatus;
     }
 
-    public String getStreamId() {
-        return streamId;
+    public String getStreamName() {
+        return streamName;
     }
 
-    public void setStreamId(String streamId) {
-        this.streamId = streamId;
+    public void setStreamName(String streamName) {
+        this.streamName = streamName;
     }
 
     public String getHlsStreamUrl() {

@@ -5,6 +5,8 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Map;
+import java.util.UUID;
+
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.SafeConstructor;
 import org.yaml.snakeyaml.LoaderOptions;
@@ -44,10 +46,11 @@ public class TestFrameworkConfigLoader {
                     requiredInt(orchestrationApi, "timeoutMs")),
             new TestFrameworkConfig.DisplayClientConfig(
                     requiredString(displayClient, "baseUrl"),
-                    requiredInt(displayClient, "timeoutMs")),
+                    requiredInt(displayClient, "timeoutMs"),
+                    requiredString(displayClient, "displayId")),
             new TestFrameworkConfig.StreamingConfig(
                     requiredString(streaming, "hlsBaseUrl"),
-                    requiredString(streaming, "streamId")),
+                    requiredString(streaming, "streamName")),
             new TestFrameworkConfig.BrowserConfig(
                     requiredBoolean(browser, "headless"),
                     new TestFrameworkConfig.ViewportConfig(
@@ -106,6 +109,16 @@ public class TestFrameworkConfigLoader {
     }
 
     throw new IllegalArgumentException("Missing or invalid string field: " + key);
+  }
+
+  private UUID requiredUuid(Map<String, Object> source, String key) {
+    String value = requiredString(source, key);
+
+    try {
+      return UUID.fromString(value);
+    } catch (IllegalArgumentException exception) {
+      throw new IllegalArgumentException("Missing or invalid UUID field: " + key, exception);
+    }
   }
 
   private int requiredInt(Map<String, Object> source, String key) {

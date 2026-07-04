@@ -70,6 +70,8 @@ dependencies {
     implementation("org.yaml:snakeyaml:2.6")
     // Source: https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-databind
     implementation("com.fasterxml.jackson.core:jackson-databind:2.22.0")
+    // Source: https://mvnrepository.com/artifact/com.microsoft.playwright/playwright
+    implementation("com.microsoft.playwright:playwright:1.61.0")
 
     // Unit test dependencies
     testImplementation(platform("org.junit:junit-bom:6.1.1"))
@@ -92,6 +94,13 @@ dependencies {
     add(bddTest.runtimeOnlyConfigurationName, "org.junit.platform:junit-platform-launcher")
 }
 
+tasks.register<JavaExec>("playwrightInstall") {
+    group = "verification"
+    description = "Installs Playwright browser binaries."
+    classpath = sourceSets.main.get().runtimeClasspath
+    mainClass.set("com.microsoft.playwright.CLI")
+    args("install", "chromium")
+}
 
 // sets location of cucumber features
 tasks.named<ProcessResources>("processBddTestResources") {
