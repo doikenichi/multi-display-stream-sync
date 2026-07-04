@@ -22,15 +22,14 @@ public class PlaybackSteps {
   public PlaybackSteps(ScenarioContext context) {
     this.context = context;
     this.config = new TestFrameworkConfigLoader().loadActiveProfile();
-    this.displayClientDriver =
-            new DisplayClientDriver(config.browser(), config.displayClient());
+    this.displayClientDriver = new DisplayClientDriver(config.browser(), config.displayClient());
   }
 
   @When("the display client is opened for the stream")
   public void theDisplayClientIsOpenedForTheStream() {
     assertThat(context.getTestRunId())
-            .as("testRunId must exist before opening the Display Client")
-            .isNotNull();
+        .as("testRunId must exist before opening the Display Client")
+        .isNotNull();
 
     String hlsStreamUrl = resolveHlsStreamUrl();
     String displayClientUrl = buildDisplayClientUrl(hlsStreamUrl);
@@ -48,7 +47,8 @@ public class PlaybackSteps {
 
   @Then("playback time should progress")
   public void playbackTimeShouldProgress() {
-    throw new PendingException("Verify that video currentTime progresses from initial to final value.");
+    throw new PendingException(
+        "Verify that video currentTime progresses from initial to final value.");
   }
 
   @After
@@ -62,25 +62,29 @@ public class PlaybackSteps {
     }
 
     return stripTrailingSlash(config.streaming().hlsBaseUrl())
-            + "/"
-            + config.streaming().streamName()
-            + "/index.m3u8";
+        + "/"
+        + config.streaming().streamName()
+        + "/index.m3u8";
   }
 
   private String buildDisplayClientUrl(String hlsStreamUrl) {
     String streamName =
-            context.getStreamName() == null || context.getStreamName().isBlank()
-                    ? config.streaming().streamName()
-                    : context.getStreamName();
+        context.getStreamName() == null || context.getStreamName().isBlank()
+            ? config.streaming().streamName()
+            : context.getStreamName();
 
     String query =
-            "displayId=" + encode(config.displayClient().displayId())
-                    + "&streamUrl=" + encode(hlsStreamUrl)
-                    + "&sourceId=" + encode(streamName)
-                    + "&testRunId=" + encode(context.getTestRunId().toString())
-                    + "&autoplay=true"
-                    + "&muted=true"
-                    + "&debug=true";
+        "displayId="
+            + encode(config.displayClient().displayId())
+            + "&streamUrl="
+            + encode(hlsStreamUrl)
+            + "&sourceId="
+            + encode(streamName)
+            + "&testRunId="
+            + encode(context.getTestRunId().toString())
+            + "&autoplay=true"
+            + "&muted=true"
+            + "&debug=true";
 
     String separator = config.displayClient().baseUrl().contains("?") ? "&" : "?";
 

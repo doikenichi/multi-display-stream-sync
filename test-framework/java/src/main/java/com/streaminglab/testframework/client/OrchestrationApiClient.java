@@ -24,31 +24,28 @@ public class OrchestrationApiClient {
   public OrchestrationApiClient(TestFrameworkConfig.OrchestrationApiConfig config) {
     this.config = config;
     this.httpClient =
-            HttpClient.newBuilder()
-                    .connectTimeout(Duration.ofMillis(config.timeoutMs()))
-                    .build();
+        HttpClient.newBuilder().connectTimeout(Duration.ofMillis(config.timeoutMs())).build();
     this.objectMapper =
-            new ObjectMapper()
-                    .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
   }
 
   public TestRunResponse createTestRun(CreateTestRunRequest request) {
     HttpRequest httpRequest =
-            HttpRequest.newBuilder()
-                    .uri(URI.create(config.baseUrl()).resolve("/api/test-runs"))
-                    .timeout(Duration.ofMillis(config.timeoutMs()))
-                    .header("Content-Type", "application/json")
-                    .header("Accept", "application/json")
-                    .POST(HttpRequest.BodyPublishers.ofString(toJson(request)))
-                    .build();
+        HttpRequest.newBuilder()
+            .uri(URI.create(config.baseUrl()).resolve("/api/test-runs"))
+            .timeout(Duration.ofMillis(config.timeoutMs()))
+            .header("Content-Type", "application/json")
+            .header("Accept", "application/json")
+            .POST(HttpRequest.BodyPublishers.ofString(toJson(request)))
+            .build();
 
     HttpResponse<String> response = send(httpRequest);
-    if (response.statusCode() != HttpURLConnection.HTTP_CREATED ) {
+    if (response.statusCode() != HttpURLConnection.HTTP_CREATED) {
       throw new IllegalStateException(
-              "Failed to create test run. Status: "
-                      + response.statusCode()
-                      + ", body: "
-                      + response.body());
+          "Failed to create test run. Status: "
+              + response.statusCode()
+              + ", body: "
+              + response.body());
     }
 
     return fromJson(response.body(), TestRunResponse.class);
@@ -56,20 +53,20 @@ public class OrchestrationApiClient {
 
   public TestRunResponse prepareTestRun(UUID testRunId) {
     HttpRequest httpRequest =
-            HttpRequest.newBuilder()
-                    .uri(URI.create(config.baseUrl()).resolve("/api/test-runs/"+testRunId+"/prepare"))
-                    .timeout(Duration.ofMillis(config.timeoutMs()))
-                    .header("Accept", "application/json")
-                    .POST(HttpRequest.BodyPublishers.noBody())
-                    .build();
+        HttpRequest.newBuilder()
+            .uri(URI.create(config.baseUrl()).resolve("/api/test-runs/" + testRunId + "/prepare"))
+            .timeout(Duration.ofMillis(config.timeoutMs()))
+            .header("Accept", "application/json")
+            .POST(HttpRequest.BodyPublishers.noBody())
+            .build();
 
     HttpResponse<String> response = send(httpRequest);
-    if (response.statusCode() != HttpURLConnection.HTTP_OK ) {
+    if (response.statusCode() != HttpURLConnection.HTTP_OK) {
       throw new IllegalStateException(
-              "Failed to create test run. Status: "
-                      + response.statusCode()
-                      + ", body: "
-                      + response.body());
+          "Failed to create test run. Status: "
+              + response.statusCode()
+              + ", body: "
+              + response.body());
     }
 
     return fromJson(response.body(), TestRunResponse.class);
@@ -77,20 +74,20 @@ public class OrchestrationApiClient {
 
   public TestRunResponse startStream(UUID testRunId) {
     HttpRequest httpRequest =
-            HttpRequest.newBuilder()
-                    .uri(URI.create(config.baseUrl()).resolve("/api/test-runs/"+testRunId+"/stream"))
-                    .timeout(Duration.ofMillis(config.timeoutMs()))
-                    .header("Accept", "application/json")
-                    .POST(HttpRequest.BodyPublishers.noBody())
-                    .build();
+        HttpRequest.newBuilder()
+            .uri(URI.create(config.baseUrl()).resolve("/api/test-runs/" + testRunId + "/stream"))
+            .timeout(Duration.ofMillis(config.timeoutMs()))
+            .header("Accept", "application/json")
+            .POST(HttpRequest.BodyPublishers.noBody())
+            .build();
 
     HttpResponse<String> response = send(httpRequest);
-    if (response.statusCode() != HttpURLConnection.HTTP_OK ) {
+    if (response.statusCode() != HttpURLConnection.HTTP_OK) {
       throw new IllegalStateException(
-              "Failed to create test run. Status: "
-                      + response.statusCode()
-                      + ", body: "
-                      + response.body());
+          "Failed to create test run. Status: "
+              + response.statusCode()
+              + ", body: "
+              + response.body());
     }
 
     return fromJson(response.body(), TestRunResponse.class);
@@ -106,20 +103,20 @@ public class OrchestrationApiClient {
 
   public TestRunResponse getTestRun(UUID testRunId) {
     HttpRequest httpRequest =
-            HttpRequest.newBuilder()
-                    .uri(URI.create(config.baseUrl()).resolve("/api/test-runs/"+testRunId))
-                    .timeout(Duration.ofMillis(config.timeoutMs()))
-                    .header("Accept", "application/json")
-                    .GET()
-                    .build();
+        HttpRequest.newBuilder()
+            .uri(URI.create(config.baseUrl()).resolve("/api/test-runs/" + testRunId))
+            .timeout(Duration.ofMillis(config.timeoutMs()))
+            .header("Accept", "application/json")
+            .GET()
+            .build();
     HttpResponse<String> response = send(httpRequest);
 
-    if (response.statusCode() != HttpURLConnection.HTTP_OK ) {
+    if (response.statusCode() != HttpURLConnection.HTTP_OK) {
       throw new IllegalStateException(
-              "Failed to create test run. Status: "
-                      + response.statusCode()
-                      + ", body: "
-                      + response.body());
+          "Failed to create test run. Status: "
+              + response.statusCode()
+              + ", body: "
+              + response.body());
     }
 
     return fromJson(response.body(), TestRunResponse.class);
@@ -152,7 +149,8 @@ public class OrchestrationApiClient {
     try {
       return objectMapper.readValue(body, responseType);
     } catch (IOException exception) {
-      throw new IllegalStateException("Failed to parse orchestration API response: " + body, exception);
+      throw new IllegalStateException(
+          "Failed to parse orchestration API response: " + body, exception);
     }
   }
 }

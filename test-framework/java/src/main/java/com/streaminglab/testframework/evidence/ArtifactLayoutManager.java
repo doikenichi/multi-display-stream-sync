@@ -9,8 +9,8 @@ import java.util.UUID;
 /** Creates the standardized artifact directory layout for one test run. */
 public class ArtifactLayoutManager {
 
-  public ArtifactPaths create(String outputDir, String implementation, String profile, UUID testRunId)
-      throws IOException {
+  public ArtifactPaths create(
+      String outputDir, String implementation, String profile, UUID testRunId) throws IOException {
     Path rootDirectory = Path.of(outputDir, implementation, profile, testRunId.toString());
     Path screenshotsDirectory = rootDirectory.resolve("screenshots");
     Path rawResultsDirectory = rootDirectory.resolve("raw-results");

@@ -1,6 +1,5 @@
 package com.streaminglab.testframework.config;
 
-import java.util.UUID;
 
 public record TestFrameworkConfig(
         String profile,

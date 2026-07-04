@@ -1,6 +1,5 @@
 package com.streaminglab.testframework.evidence;
 
-
 import com.streaminglab.testframework.context.ScenarioContext;
 
 import java.io.IOException;

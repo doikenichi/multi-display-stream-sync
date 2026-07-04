@@ -21,7 +21,8 @@ public class EvidenceSteps {
 
   @Then("a playback screenshot should be captured")
   public void aPlaybackScreenshotShouldBeCaptured() {
-    throw new PendingException("Capture and store a playback screenshot under the artifact directory.");
+    throw new PendingException(
+        "Capture and store a playback screenshot under the artifact directory.");
   }
 
   @Then("all required artifacts should contain the test run id")
