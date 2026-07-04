@@ -1,6 +1,13 @@
 package com.streaminglab.testframework.steps;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
+import com.streaminglab.testframework.client.OrchestrationApiClient;
+import com.streaminglab.testframework.config.TestFrameworkConfig;
+import com.streaminglab.testframework.config.TestFrameworkConfigLoader;
 import com.streaminglab.testframework.context.ScenarioContext;
+import com.streaminglab.testframework.dto.CreateTestRunRequest;
+import com.streaminglab.testframework.dto.TestRunResponse;
 import io.cucumber.java.PendingException;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
@@ -8,17 +15,32 @@ import io.cucumber.java.en.When;
 
 public class TestRunSteps {
 
-  // PicoContainer will provide shared scenario state as these pending steps are implemented.
-  @SuppressWarnings("PMD.UnusedPrivateField")
+  private static final int SINGLE_DISPLAY_CLIENT = 1;
+
   private final ScenarioContext context;
+  private final TestFrameworkConfig config;
+  private final OrchestrationApiClient orchestrationApiClient;
 
   public TestRunSteps(ScenarioContext context) {
     this.context = context;
+    this.config = new TestFrameworkConfigLoader().loadActiveProfile();
+    this.orchestrationApiClient = new OrchestrationApiClient(config.orchestrationApi());
   }
 
   @Given("a new test run exists")
   public void aNewTestRunExists() {
-    throw new PendingException("Create test run through streaming-lab-orchestration-api.");
+    CreateTestRunRequest request =
+            new CreateTestRunRequest(config.streaming().streamId(), SINGLE_DISPLAY_CLIENT);
+
+    TestRunResponse response = orchestrationApiClient.createTestRun(request);
+
+    assertThat(response.testRunId()).isNotNull();
+    assertThat(response.status()).isEqualTo("CREATED");
+
+    context.setTestRunId(response.testRunId());
+    context.setCurrentTestRunStatus(response.status());
+    context.setStreamId(response.streamName());
+    context.setHlsStreamUrl(response.hlsExternalUrl());
   }
 
   @Given("the test run is prepared")

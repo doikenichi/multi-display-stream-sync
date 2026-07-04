@@ -68,6 +68,8 @@ dependencies {
     // yaml parser
     // Source: https://mvnrepository.com/artifact/org.yaml/snakeyaml
     implementation("org.yaml:snakeyaml:2.6")
+    // Source: https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-databind
+    implementation("com.fasterxml.jackson.core:jackson-databind:2.22.0")
 
     // Unit test dependencies
     testImplementation(platform("org.junit:junit-bom:6.1.1"))
