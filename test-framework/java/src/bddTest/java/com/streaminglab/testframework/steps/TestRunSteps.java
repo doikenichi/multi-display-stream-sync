@@ -21,9 +21,20 @@ public class TestRunSteps {
   private final OrchestrationApiClient orchestrationApiClient;
 
   public TestRunSteps(ScenarioContext context) {
+    this(context, new TestFrameworkConfigLoader().loadActiveProfile());
+  }
+
+  private TestRunSteps(ScenarioContext context, TestFrameworkConfig config) {
+    this(context, config, new OrchestrationApiClient(config.orchestrationApi()));
+  }
+
+  TestRunSteps(
+      ScenarioContext context,
+      TestFrameworkConfig config,
+      OrchestrationApiClient orchestrationApiClient) {
     this.context = context;
-    this.config = new TestFrameworkConfigLoader().loadActiveProfile();
-    this.orchestrationApiClient = new OrchestrationApiClient(config.orchestrationApi());
+    this.config = config;
+    this.orchestrationApiClient = orchestrationApiClient;
   }
 
   @Given("a new test run exists")

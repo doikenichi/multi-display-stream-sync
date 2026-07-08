@@ -76,8 +76,11 @@ dependencies {
     // Unit test dependencies
     testImplementation(platform("org.junit:junit-bom:6.1.1"))
     testImplementation(platform("org.assertj:assertj-bom:3.27.7"))
+    testImplementation(platform("org.mockito:mockito-bom:5.20.0"))
     testImplementation("org.junit.jupiter:junit-jupiter")
     testImplementation("org.assertj:assertj-core")
+    testImplementation("org.mockito:mockito-core")
+    testImplementation("org.mockito:mockito-junit-jupiter")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 
     // BDD/Cucumber dependencies
