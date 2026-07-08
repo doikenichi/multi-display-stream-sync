@@ -1,9 +1,20 @@
+import com.github.spotbugs.snom.Confidence
+import com.github.spotbugs.snom.Effort
+import com.github.spotbugs.snom.SpotBugsTask
+import org.gradle.api.plugins.quality.Checkstyle
+import org.gradle.api.plugins.quality.Pmd
+import org.gradle.testing.jacoco.tasks.JacocoCoverageVerification
+import org.gradle.testing.jacoco.tasks.JacocoReport
+
 plugins {
     id 'java'
     id 'org.springframework.boot' version '4.0.6'
     id 'io.spring.dependency-management' version '1.1.7'
     id 'com.diffplug.spotless' version '7.2.1'
     id 'checkstyle'
+    id 'pmd'
+    id 'jacoco'
+    id 'com.github.spotbugs' version '6.5.8'
 }
 
 group = 'com.streaminglab'
@@ -25,8 +36,27 @@ spotless {
 }
 
 checkstyle {
-    toolVersion = '10.21.4'
-    configFile = file("${rootDir}/config/checkstyle/checkstyle.xml")
+    toolVersion = '13.7.0'
+    configDirectory = file("${rootDir}/../config/checkstyle")
+}
+
+pmd {
+    toolVersion = '7.24.0'
+    consoleOutput = true
+    rulesMinimumPriority = 5
+    ruleSetFiles = files("${rootDir}/../config/pmd/ruleset.xml")
+    ruleSets = []
+}
+
+jacoco {
+    toolVersion = '0.8.15'
+}
+
+spotbugs {
+    toolVersion = '4.10.2'
+    effort = Effort.valueOf('MAX')
+    reportLevel = Confidence.valueOf('MEDIUM')
+    excludeFilter = file("${rootDir}/../config/spotbugs/exclude.xml")
 }
 
 repositories {
@@ -47,6 +77,69 @@ dependencies {
 
 tasks.named('test') {
     useJUnitPlatform()
+    finalizedBy tasks.named('jacocoTestReport')
+}
+
+tasks.withType(Checkstyle).configureEach {
+    reports {
+        xml.required = true
+        html.required = true
+    }
+}
+
+tasks.withType(Pmd).configureEach {
+    reports {
+        xml.required = true
+        html.required = true
+    }
+}
+
+tasks.withType(SpotBugsTask).configureEach {
+    reports {
+        xml { required = true }
+        html { required = true }
+    }
+}
+
+tasks.named('jacocoTestReport', JacocoReport) {
+    dependsOn tasks.named('test')
+    reports {
+        xml.required = true
+        html.required = true
+        csv.required = false
+    }
+}
+
+tasks.named('jacocoTestCoverageVerification', JacocoCoverageVerification) {
+    dependsOn tasks.named('test')
+    violationRules {
+        rule {
+            limit {
+                counter = 'LINE'
+                value = 'COVEREDRATIO'
+                minimum = 0.70
+            }
+        }
+        rule {
+            limit {
+                counter = 'BRANCH'
+                value = 'COVEREDRATIO'
+                minimum = 0.60
+            }
+        }
+    }
+}
+
+tasks.named('check') {
+    dependsOn tasks.named('jacocoTestCoverageVerification')
+}
+
+tasks.register('qualityCheck') {
+    group = 'verification'
+    description = 'Runs formatting, static analysis, unit tests, and coverage verification.'
+    dependsOn tasks.named('spotlessCheck')
+    dependsOn tasks.named('check')
+    dependsOn tasks.named('jacocoTestReport')
 }
 // https://www.baeldung.com/gradle-source-sets
 // https://docs.gradle.org/current/userguide/java_testing.html

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FindBugsFilter>
+    <!-- Cucumber/PicoContainer deliberately injects shared mutable scenario state into step classes. -->
+    <Match>
+        <Class name="~com\.streaminglab\.testframework\.steps\..*Steps"/>
+        <Bug pattern="EI_EXPOSE_REP2"/>
+    </Match>
+</FindBugsFilter>

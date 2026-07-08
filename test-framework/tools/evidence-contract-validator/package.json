@@ -1,33 +1,20 @@
 {
-  "name": "multi-display-stream-sync",
+  "name": "streaming-lab-contract-validator",
   "version": "1.0.0",
-  "description": "This project is a proof-of-concept test automation lab for validating **multi-display video stream synchronization** in an internet-style streaming environment.",
-  "main": "index.js",
-  "directories": {
-    "doc": "docs"
-  },
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "test:evidence-contracts": "tsx scripts/validate-playback-status-schemas.ts",
-    "typecheck": "tsc --noEmit"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/doikenichi/multi-display-stream-sync.git"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "description": "Validates Streaming Lab test-framework contract examples against shared schemas.",
+  "private": true,
   "type": "commonjs",
-  "bugs": {
-    "url": "https://github.com/doikenichi/multi-display-stream-sync/issues"
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "validate:contracts": "tsx scripts/validate-contracts.ts",
+    "validate:evidence-contracts": "tsx scripts/validate-contracts.ts"
   },
-  "homepage": "https://github.com/doikenichi/multi-display-stream-sync#readme",
   "devDependencies": {
     "@types/node": "^25.9.3",
     "ajv": "^8.20.0",
     "ajv-formats": "^3.0.1",
     "tsx": "^4.22.4",
-    "typescript": "^6.0.3"
+    "typescript": "^6.0.3",
+    "yaml": "^2.8.1"
   }
 }

@@ -16,6 +16,7 @@ jobs:
 
     outputs:
       orchestration_api_changed: ${{ steps.filter.outputs.orchestration_api }}
+      test_framework_java_changed: ${{ steps.filter.outputs.test_framework_java }}
       display_client_changed: ${{ steps.filter.outputs.display_client }}
       evidence_contracts_changed: ${{ steps.filter.outputs.evidence_contracts }}
 
@@ -29,7 +30,12 @@ jobs:
         with:
           filters: |
             orchestration_api:
+              - 'config/**'
               - 'streaming-lab-orchestration-api/**'
+              - '.github/workflows/required-ci-gate.yml'
+            test_framework_java:
+              - 'config/**'
+              - 'test-framework/java/**'
               - '.github/workflows/required-ci-gate.yml'
             display_client:
               - 'display-client/**'
@@ -64,7 +70,54 @@ jobs:
         run: chmod +x ./gradlew
 
       - name: Run Orchestration API quality gate
-        run: ./gradlew clean spotlessCheck check test
+        run: ./gradlew clean qualityCheck
+
+      - name: Upload Orchestration API quality reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: required-gate-orchestration-api-quality-reports
+          path: |
+            streaming-lab-orchestration-api/build/reports/
+            streaming-lab-orchestration-api/build/test-results/
+          if-no-files-found: warn
+
+  validate-test-framework-java:
+    name: Validate Test Framework Java
+    runs-on: ubuntu-latest
+    needs: detect-changes
+    if: needs.detect-changes.outputs.test_framework_java_changed == 'true'
+
+    defaults:
+      run:
+        working-directory: test-framework/java
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Java 25
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "25"
+          cache: gradle
+
+      - name: Make Gradle wrapper executable
+        run: chmod +x ./gradlew
+
+      - name: Run Test Framework Java quality gate
+        run: ./gradlew clean qualityCheck
+
+      - name: Upload Test Framework Java quality reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: required-gate-test-framework-java-quality-reports
+          path: |
+            test-framework/java/build/reports/
+            test-framework/java/build/test-results/
+          if-no-files-found: warn
 
   validate-display-client:
     name: Validate Display Client
@@ -115,7 +168,7 @@ jobs:
 
       - name: Validate evidence contracts
         working-directory: ./test-framework/tools/evidence-contract-validator
-        run: npm run test:evidence-contracts
+        run: npm run validate:evidence-contracts
 
   required-ci-gate:
     name: Required CI Gate
@@ -123,6 +176,7 @@ jobs:
     needs:
       - detect-changes
       - validate-orchestration-api
+      - validate-test-framework-java
       - validate-display-client
       - validate-evidence-contracts
     if: always()
@@ -131,14 +185,21 @@ jobs:
       - name: Evaluate required checks
         run: |
           echo "orchestration_api_changed=${{ needs.detect-changes.outputs.orchestration_api_changed }}"
+          echo "test_framework_java_changed=${{ needs.detect-changes.outputs.test_framework_java_changed }}"
           echo "display_client_changed=${{ needs.detect-changes.outputs.display_client_changed }}"
           echo "evidence_contracts_changed=${{ needs.detect-changes.outputs.evidence_contracts_changed }}"
           echo "validate-orchestration-api result=${{ needs.validate-orchestration-api.result }}"
+          echo "validate-test-framework-java result=${{ needs.validate-test-framework-java.result }}"
           echo "validate-display-client result=${{ needs.validate-display-client.result }}"
           echo "validate-evidence-contracts result=${{ needs.validate-evidence-contracts.result }}"
 
           if [[ "${{ needs.detect-changes.outputs.orchestration_api_changed }}" == "true" && "${{ needs.validate-orchestration-api.result }}" != "success" ]]; then
             echo "Orchestration API changed, but validation did not pass."
+            exit 1
+          fi
+
+          if [[ "${{ needs.detect-changes.outputs.test_framework_java_changed }}" == "true" && "${{ needs.validate-test-framework-java.result }}" != "success" ]]; then
+            echo "Test Framework Java changed, but validation did not pass."
             exit 1
           fi
 

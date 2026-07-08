@@ -1,0 +1,38 @@
+{
+  "testRunId": "8f6b2a4e-0000-4000-9000-000000000000",
+  "implementation": "jvm",
+  "profile": "local",
+  "streamId": "camera_sync_test",
+  "displayId": "DISPLAY_01",
+  "status": "PASSED",
+  "stream": {
+    "hlsUrl": "http://localhost:8888/camera_sync_test/index.m3u8"
+  },
+  "browser": {
+    "playbackMode": "hls.js",
+    "readyState": 4,
+    "videoWidth": 1280,
+    "videoHeight": 720,
+    "autoplay": true,
+    "muted": true
+  },
+  "playback": {
+    "videoLoaded": true,
+    "initialCurrentTimeSeconds": 0.25,
+    "finalCurrentTimeSeconds": 3.12,
+    "minimumProgressSeconds": 2,
+    "progressed": true,
+    "lastError": null,
+    "errorType": null,
+    "errorDetails": null,
+    "fatalError": null
+  },
+  "artifacts": {
+    "artifactDirectory": "artifacts/jvm/local/8f6b2a4e-0000-4000-9000-000000000000",
+    "logFile": "playback.log",
+    "screenshots": [
+      "screenshots/playback-progressed.png"
+    ]
+  },
+  "capturedAt": "2026-07-01T10:00:20Z"
+}

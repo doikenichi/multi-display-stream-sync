@@ -1,0 +1,155 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "test-framework-config.schema.json",
+  "title": "Test Framework Config",
+  "description": "Shared configuration contract loaded by all Streaming Lab test-framework implementations.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "profile",
+    "orchestrationApi",
+    "displayClient",
+    "streaming",
+    "browser",
+    "playback",
+    "evidence",
+    "reporting"
+  ],
+  "properties": {
+    "profile": {
+      "type": "string",
+      "enum": ["local", "ci", "docker", "k8s"]
+    },
+    "orchestrationApi": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["baseUrl", "timeoutMs"],
+      "properties": {
+        "baseUrl": {
+          "type": "string",
+          "format": "uri"
+        },
+        "timeoutMs": {
+          "type": "integer",
+          "minimum": 1
+        }
+      }
+    },
+    "displayClient": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["baseUrl", "timeoutMs", "displayId"],
+      "properties": {
+        "baseUrl": {
+          "type": "string",
+          "format": "uri"
+        },
+        "timeoutMs": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "displayId": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "streaming": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["hlsBaseUrl", "streamName"],
+      "properties": {
+        "hlsBaseUrl": {
+          "type": "string",
+          "format": "uri"
+        },
+        "streamName": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "browser": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["headless", "viewport"],
+      "properties": {
+        "headless": {
+          "type": "boolean"
+        },
+        "viewport": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["width", "height"],
+          "properties": {
+            "width": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "height": {
+              "type": "integer",
+              "minimum": 1
+            }
+          }
+        }
+      }
+    },
+    "playback": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["minimumProgressSeconds", "timeoutMs", "pollIntervalMs"],
+      "properties": {
+        "minimumProgressSeconds": {
+          "type": "number",
+          "minimum": 0
+        },
+        "timeoutMs": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "pollIntervalMs": {
+          "type": "integer",
+          "minimum": 1
+        }
+      }
+    },
+    "evidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["outputDir", "screenshotsEnabled", "logsEnabled"],
+      "properties": {
+        "outputDir": {
+          "type": "string",
+          "minLength": 1
+        },
+        "screenshotsEnabled": {
+          "type": "boolean"
+        },
+        "logsEnabled": {
+          "type": "boolean"
+        }
+      }
+    },
+    "reporting": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["reportPortalEnabled", "launchName", "attributes"],
+      "properties": {
+        "reportPortalEnabled": {
+          "type": "boolean"
+        },
+        "launchName": {
+          "type": "string",
+          "minLength": 1
+        },
+        "attributes": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^[^:]+:.+$"
+          }
+        }
+      }
+    }
+  }
+}
