@@ -5,7 +5,6 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Map;
-import java.util.UUID;
 import org.yaml.snakeyaml.LoaderOptions;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.SafeConstructor;
@@ -18,12 +17,33 @@ public class TestFrameworkConfigLoader {
   }
 
   public TestFrameworkConfig load(String profile) {
-    Path configPath =
-            Path.of("..", "contract", "examples", "test-framework-" + profile + ".yaml")
-                    .toAbsolutePath()
-                    .normalize();
+    return loadFromPath(resolveConfigPath(profile));
+  }
 
-    return loadFromPath(configPath);
+  private Path resolveConfigPath(String profile) {
+    String configFileName = "test-framework-" + profile + ".yaml";
+    Path workingDirectory = Path.of("").toAbsolutePath().normalize();
+
+    Path current = workingDirectory;
+    while (current != null) {
+      Path sharedContractConfig =
+          current.resolve(Path.of("contract", "examples", configFileName)).normalize();
+      if (Files.exists(sharedContractConfig)) {
+        return sharedContractConfig;
+      }
+
+      Path repositoryContractConfig =
+          current.resolve(Path.of("test-framework", "contract", "examples", configFileName))
+              .normalize();
+      if (Files.exists(repositoryContractConfig)) {
+        return repositoryContractConfig;
+      }
+
+      current = current.getParent();
+    }
+
+    return workingDirectory.resolve(Path.of("..", "contract", "examples", configFileName))
+        .normalize();
   }
 
   public TestFrameworkConfig loadFromPath(Path configPath) {
@@ -39,33 +59,31 @@ public class TestFrameworkConfigLoader {
     Map<String, Object> reporting = requiredMap(root, "reporting");
 
     return new TestFrameworkConfig(
-            requiredString(root, "profile"),
-            new TestFrameworkConfig.OrchestrationApiConfig(
-                    requiredString(orchestrationApi, "baseUrl"),
-                    requiredInt(orchestrationApi, "timeoutMs")),
-            new TestFrameworkConfig.DisplayClientConfig(
-                    requiredString(displayClient, "baseUrl"),
-                    requiredInt(displayClient, "timeoutMs"),
-                    requiredString(displayClient, "displayId")),
-            new TestFrameworkConfig.StreamingConfig(
-                    requiredString(streaming, "hlsBaseUrl"),
-                    requiredString(streaming, "streamName")),
-            new TestFrameworkConfig.BrowserConfig(
-                    requiredBoolean(browser, "headless"),
-                    new TestFrameworkConfig.ViewportConfig(
-                            requiredInt(viewport, "width"),
-                            requiredInt(viewport, "height"))),
-            new TestFrameworkConfig.PlaybackConfig(
-                    requiredDouble(playback, "minimumProgressSeconds"),
-                    requiredInt(playback, "timeoutMs"),
-                    requiredInt(playback, "pollIntervalMs")),
-            new TestFrameworkConfig.EvidenceConfig(
-                    requiredString(evidence, "outputDir"),
-                    requiredBoolean(evidence, "screenshotsEnabled"),
-                    requiredBoolean(evidence, "logsEnabled")),
-            new TestFrameworkConfig.ReportingConfig(
-                    requiredBoolean(reporting, "reportPortalEnabled"),
-                    requiredString(reporting, "launchName")));
+        requiredString(root, "profile"),
+        new TestFrameworkConfig.OrchestrationApiConfig(
+            requiredString(orchestrationApi, "baseUrl"),
+            requiredInt(orchestrationApi, "timeoutMs")),
+        new TestFrameworkConfig.DisplayClientConfig(
+            requiredString(displayClient, "baseUrl"),
+            requiredInt(displayClient, "timeoutMs"),
+            requiredString(displayClient, "displayId")),
+        new TestFrameworkConfig.StreamingConfig(
+            requiredString(streaming, "hlsBaseUrl"), requiredString(streaming, "streamName")),
+        new TestFrameworkConfig.BrowserConfig(
+            requiredBoolean(browser, "headless"),
+            new TestFrameworkConfig.ViewportConfig(
+                requiredInt(viewport, "width"), requiredInt(viewport, "height"))),
+        new TestFrameworkConfig.PlaybackConfig(
+            requiredDouble(playback, "minimumProgressSeconds"),
+            requiredInt(playback, "timeoutMs"),
+            requiredInt(playback, "pollIntervalMs")),
+        new TestFrameworkConfig.EvidenceConfig(
+            requiredString(evidence, "outputDir"),
+            requiredBoolean(evidence, "screenshotsEnabled"),
+            requiredBoolean(evidence, "logsEnabled")),
+        new TestFrameworkConfig.ReportingConfig(
+            requiredBoolean(reporting, "reportPortalEnabled"),
+            requiredString(reporting, "launchName")));
   }
 
   @SuppressWarnings("unchecked")
@@ -108,16 +126,6 @@ public class TestFrameworkConfigLoader {
     }
 
     throw new IllegalArgumentException("Missing or invalid string field: " + key);
-  }
-
-  private UUID requiredUuid(Map<String, Object> source, String key) {
-    String value = requiredString(source, key);
-
-    try {
-      return UUID.fromString(value);
-    } catch (IllegalArgumentException exception) {
-      throw new IllegalArgumentException("Missing or invalid UUID field: " + key, exception);
-    }
   }
 
   private int requiredInt(Map<String, Object> source, String key) {

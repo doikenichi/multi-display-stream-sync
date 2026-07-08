@@ -22,8 +22,8 @@ public class DisplayClientDriver implements AutoCloseable {
   private Page page;
 
   public DisplayClientDriver(
-          TestFrameworkConfig.BrowserConfig browserConfig,
-          TestFrameworkConfig.DisplayClientConfig displayClientConfig) {
+      TestFrameworkConfig.BrowserConfig browserConfig,
+      TestFrameworkConfig.DisplayClientConfig displayClientConfig) {
     this.browserConfig = browserConfig;
     this.displayClientConfig = displayClientConfig;
   }
@@ -32,16 +32,15 @@ public class DisplayClientDriver implements AutoCloseable {
     playwright = Playwright.create();
 
     browser =
-            playwright
-                    .chromium()
-                    .launch(new BrowserType.LaunchOptions().setHeadless(browserConfig.headless()));
+        playwright
+            .chromium()
+            .launch(new BrowserType.LaunchOptions().setHeadless(browserConfig.headless()));
 
     browserContext =
-            browser.newContext(
-                    new Browser.NewContextOptions()
-                            .setViewportSize(
-                                    browserConfig.viewport().width(),
-                                    browserConfig.viewport().height()));
+        browser.newContext(
+            new Browser.NewContextOptions()
+                .setViewportSize(
+                    browserConfig.viewport().width(), browserConfig.viewport().height()));
 
     page = browserContext.newPage();
     page.setDefaultTimeout(displayClientConfig.timeoutMs());

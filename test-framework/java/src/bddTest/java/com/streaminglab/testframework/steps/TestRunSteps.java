@@ -29,7 +29,7 @@ public class TestRunSteps {
   @Given("a new test run exists")
   public void aNewTestRunExists() {
     CreateTestRunRequest request =
-            new CreateTestRunRequest(config.streaming().streamName(), SINGLE_DISPLAY_CLIENT);
+        new CreateTestRunRequest(config.streaming().streamName(), SINGLE_DISPLAY_CLIENT);
 
     TestRunResponse response = orchestrationApiClient.createTestRun(request);
 
@@ -70,7 +70,6 @@ public class TestRunSteps {
     assertThat(response.streamName()).isEqualTo(context.getStreamName());
 
     context.setCurrentTestRunStatus(response.status());
-
   }
 
   @Then("the test run should be stopped")
@@ -81,6 +80,5 @@ public class TestRunSteps {
     assertThat(response.streamName()).isEqualTo(context.getStreamName());
 
     context.setCurrentTestRunStatus(response.status());
-
   }
 }

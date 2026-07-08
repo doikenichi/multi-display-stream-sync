@@ -1,7 +1,5 @@
 package com.streaminglab.testframework.dto;
 
-import java.util.UUID;
-
 /** Request DTO for creating a test run through streaming-lab-orchestration-api. */
 
 /**
