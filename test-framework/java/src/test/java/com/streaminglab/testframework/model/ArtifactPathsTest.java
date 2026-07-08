@@ -10,13 +10,13 @@ public class ArtifactPathsTest {
   void shouldBeInstantiable() {
     var artifactPaths =
         new ArtifactPaths(
-            Path.of("/root"),
-            Path.of("/screenshot"),
-            Path.of("/raw"),
-            Path.of("/browser"),
-            Path.of("/playback"),
-            Path.of("/summary"),
-            Path.of("/log"));
+            Path.of("root"),
+            Path.of("screenshot"),
+            Path.of("raw"),
+            Path.of("browser"),
+            Path.of("playback"),
+            Path.of("summary"),
+            Path.of("log"));
     assertThat(artifactPaths).isNotNull();
   }
 }

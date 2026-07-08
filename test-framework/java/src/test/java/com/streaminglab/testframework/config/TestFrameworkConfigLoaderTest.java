@@ -6,6 +6,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Objects;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
@@ -127,7 +128,7 @@ class TestFrameworkConfigLoaderTest {
   }
 
   private void writeConfig(Path configPath) throws IOException {
-    Files.createDirectories(configPath.getParent());
+    Files.createDirectories(Objects.requireNonNull(configPath.getParent(), "configPath parent"));
     Files.writeString(configPath, LOCAL_CONFIG);
   }
 
