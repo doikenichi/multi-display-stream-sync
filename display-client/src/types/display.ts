@@ -25,7 +25,7 @@ export interface PlaybackError {
   message: string;
 }
 
-export type PlaybackMode = "none" | "hls.js" | "native" | "unsupported";
+export type PlaybackMode = "none" | "shaka" | "native-hls" | "unsupported";
 
 export interface VideoDiagnostics {
   readyState: number;
