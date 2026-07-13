@@ -1,5 +1,11 @@
 /.idea/
+.vscode/
+.run/
 /test-framework/artifacts/test-runs/*
 !/test-framework/artifacts/test-runs/.gitkeep
 node_modules/
 dist/
+display-client/.nyc_output/
+display-client/coverage/
+display-client/playwright-report/
+display-client/test-results/

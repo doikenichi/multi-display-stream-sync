@@ -10,7 +10,7 @@ export function PlaybackErrorView({ error }: PlaybackErrorViewProps) {
   }
 
   return (
-    <div data-testid="playback-error" className="error-message">
+    <div role="alert" data-testid="playback-error" className="error-message">
       <strong>Error:</strong> {error.message}
     </div>
   );
